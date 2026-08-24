@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
   tailwind.config = {
     theme: {
@@ -406,10 +406,30 @@
         document.getElementById('btn-menu').classList.remove('hidden');
         renderNutricio();
         renderRutines();
-        mostrarPantalla('screen-nutricio');
+        if (!comprovarEsborranyEntrenament()) {
+          mostrarPantalla('screen-nutricio');
+        }
       }
     } catch (error) {
       document.getElementById('loading-text').innerText = "Error de connexió.";
+      console.error(error);
+    }
+  }
+
+  /**
+   * Igual que iniciarApp però SENSE mostrar la pantalla de càrrega.
+   * Fer-la servir després de desar dades, per refrescar appData sense
+   * que la persona vegi el cercle girant cada cop (només és un
+   * refresc en segon pla, la connexió ja funcionava bé).
+   */
+  async function actualitzarDadesSilenciosament() {
+    const pin = localStorage.getItem('gymcream_pin');
+    if (!pin) return;
+    try {
+      const response = await fetch(API_URL + "?pin=" + encodeURIComponent(pin));
+      const data = await response.json();
+      if (data.estat === 'ok') appData = data;
+    } catch (error) {
       console.error(error);
     }
   }
@@ -631,9 +651,9 @@
     document.getElementById('rutines-content').innerHTML = html;
   }
 
-  function carregarEntrenament(nomRutina) {
+  function carregarEntrenament(nomRutina, esborrany) {
     rutinaActual = nomRutina;
-    horaInici = horaActual();
+    horaInici = (esborrany && esborrany.horaInici) || horaActual();
     document.getElementById('titol-entrenament').innerText = nomRutina;
     const exercicis = appData.rutines[nomRutina];
     let html = "";
@@ -692,7 +712,81 @@
     });
 
     document.getElementById('exercicis-content').innerHTML = html;
+    if (esborrany) aplicarEsborranyEntrenament_(esborrany);
     mostrarPantalla('screen-entrenament');
+  }
+
+  /* ---------- Autodesat de l'entrenament en curs (per no perdre dades) ---------- */
+  const CLAU_ESBORRANY = 'gymcream_esborrany_entrenament';
+  let timerEsborrany = null;
+
+  function autodesarEsborranyDebounced() {
+    clearTimeout(timerEsborrany);
+    timerEsborrany = setTimeout(desarEsborranyEntrenament, 400);
+  }
+  document.getElementById('exercicis-content').addEventListener('input', autodesarEsborranyDebounced);
+
+  function desarEsborranyEntrenament() {
+    if (!rutinaActual) return;
+    const series = [];
+    document.querySelectorAll('#exercicis-content > div[data-exercici]').forEach(function (bloc) {
+      bloc.querySelectorAll('[data-fila-serie]').forEach(function (fila) {
+        series.push({
+          exercici: bloc.dataset.exercici, idExercici: bloc.dataset.idExercici,
+          tipusSerie: fila.dataset.tipus, numeroSerie: fila.dataset.numero,
+          validat: fila.dataset.validat === 'true',
+          reps: fila.querySelector('[data-camp="repsTemps"]').value,
+          kg: fila.querySelector('[data-camp="kg"]').value,
+          rpe: fila.querySelector('[data-camp="rpe"]').value
+        });
+      });
+    });
+    localStorage.setItem(CLAU_ESBORRANY, JSON.stringify({ nomRutina: rutinaActual, horaInici: horaInici, series: series }));
+  }
+
+  function esborrarEsborranyEntrenament() {
+    localStorage.removeItem(CLAU_ESBORRANY);
+  }
+
+  /** Retorna true si s'ha reprès un entrenament pendent (i per tant ja s'ha canviat de pantalla). */
+  function comprovarEsborranyEntrenament() {
+    const raw = localStorage.getItem(CLAU_ESBORRANY);
+    if (!raw) return false;
+    let esborrany;
+    try { esborrany = JSON.parse(raw); } catch (e) { esborrarEsborranyEntrenament(); return false; }
+    if (!esborrany || !esborrany.nomRutina || !appData.rutines || !appData.rutines[esborrany.nomRutina]) {
+      esborrarEsborranyEntrenament();
+      return false;
+    }
+    const continuar = confirm('Tens un entrenament de "' + esborrany.nomRutina + '" sense acabar (iniciat a les ' + esborrany.horaInici + '). Vols continuar-lo on ho vas deixar?');
+    if (!continuar) { esborrarEsborranyEntrenament(); return false; }
+    carregarEntrenament(esborrany.nomRutina, esborrany);
+    return true;
+  }
+
+  function aplicarEsborranyEntrenament_(esborrany) {
+    const guardadesPerBloc = {};
+    esborrany.series.forEach(function (s) {
+      const clau = s.exercici + '|' + s.idExercici;
+      if (!guardadesPerBloc[clau]) guardadesPerBloc[clau] = [];
+      guardadesPerBloc[clau].push(s);
+    });
+    document.querySelectorAll('#exercicis-content > div[data-exercici]').forEach(function (bloc) {
+      const clau = bloc.dataset.exercici + '|' + bloc.dataset.idExercici;
+      const guardades = guardadesPerBloc[clau] || [];
+      const files = bloc.querySelectorAll('[data-fila-serie]');
+      files.forEach(function (fila, i) {
+        const g = guardades[i];
+        if (!g) return;
+        fila.querySelector('[data-camp="repsTemps"]').value = g.reps || '';
+        fila.querySelector('[data-camp="kg"]').value = g.kg || '';
+        fila.querySelector('[data-camp="rpe"]').value = g.rpe || '';
+        if (g.validat) {
+          const btn = fila.querySelector('button[aria-label^="Validar"]');
+          if (btn) toggleValidarSerie(btn);
+        }
+      });
+    });
   }
 
   function mostrarObservacions(nomExercici, observacions) {
@@ -715,6 +809,7 @@
       btn.classList.add('bg-gray-200');
       fila.dataset.validat = 'false';
     }
+    desarEsborranyEntrenament();
   }
 
   async function finalitzarEntrenament() {
@@ -749,8 +844,12 @@
     mostrarToast('Desant entrenament...');
     const res = await postData('guardarEntrenament', payload);
     if (res.status === 'success') {
+      esborrarEsborranyEntrenament();
       mostrarToast('Entrenament desat! 💪');
-      iniciarApp(localStorage.getItem('gymcream_pin'));
+      await actualitzarDadesSilenciosament();
+      renderNutricio();
+      renderRutines();
+      mostrarPantalla('screen-nutricio');
     } else {
       mostrarToast('Error desant l\'entrenament.');
     }
@@ -789,7 +888,9 @@
     const res = await postData('guardarSeguiment', payload);
     if (res.status === 'success') {
       mostrarToast('Seguiment desat! 📈');
-      iniciarApp(localStorage.getItem('gymcream_pin'));
+      await actualitzarDadesSilenciosament();
+      renderNutricio();
+      mostrarPantalla('screen-nutricio');
     } else {
       mostrarToast('Error desant el seguiment.');
     }
