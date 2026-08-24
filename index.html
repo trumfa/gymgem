@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gym Cream - Entrenament</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'gym-pink': '#ec4899', 'gym-pink-light': '#fdf2f8', 'gym-pink-dark': '#be185d' } } } }
+    </script>
+    <style> .hidden-screen { display: none; } .fade-in { animation: fadeIn 0.3s ease-in-out; } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } </style>
+</head>
+<body class="bg-gym-pink-light text-gray-800 font-sans antialiased h-screen flex flex-col">
+
+    <!-- CAPÇALERA -->
+    <header class="bg-white shadow-md p-4 flex justify-between items-center relative z-20">
+        <div class="flex items-center gap-3">
+            <img src="Gymcream.jpg" alt="Logo Gym Cream" class="h-12 w-12 rounded-full border-2 border-gym-pink object-cover shadow-sm">
+            <h1 class="text-xl font-bold text-gym-pink-dark">Gym Cream</h1>
+        </div>
+        <button id="btn-menu" class="text-gym-pink-dark focus:outline-none p-2" onclick="toggleMenu()">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+    </header>
+
+    <!-- MENÚ LATERAL -->
+    <div id="side-menu" class="fixed inset-y-0 right-0 w-64 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h2 class="text-lg font-bold text-gym-pink-dark">Menú</h2>
+                <button onclick="toggleMenu()" class="text-gray-500 hover:text-gym-pink">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <ul class="space-y-4">
+                <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium">Entrenament</a></li>
+                <li><a href="#" class="block text-gym-pink font-bold" onclick="mostrarPantalla('screen-nutricio'); toggleMenu();">Nutrició</a></li>
+                <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium">Mides i Gràfics</a></li>
+            </ul>
+        </div>
+    </div>
+    <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-10 hidden" onclick="toggleMenu()"></div>
+
+    <!-- CONTINGUT PRINCIPAL -->
+    <main class="flex-grow p-6 flex flex-col items-center relative z-0 overflow-y-auto w-full">
+
+        <!-- Pantalles existents (Carregant, Login, Alta) es mantenen aquí... -->
+        
+        <!-- PANTALLA NUTRICIÓ -->
+        <div id="screen-nutricio" class="w-full max-w-md fade-in hidden-screen">
+            <h2 class="text-2xl font-bold text-gym-pink-dark mb-4 text-center">Pauta Nutricional</h2>
+            
+            <!-- Resum Diari -->
+            <div class="bg-white rounded-2xl shadow-md p-5 mb-6 border-t-4 border-gym-pink">
+                <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Total Diari Objectiu</h3>
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-gym-pink-light p-3 rounded-xl">
+                        <span class="block text-sm text-gray-500 uppercase tracking-wide">Calories</span>
+                        <span class="text-2xl font-bold text-gym-pink-dark">1750</span>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-xl">
+                        <span class="block text-sm text-gray-500 uppercase tracking-wide">Proteïna</span>
+                        <span class="text-xl font-bold text-blue-700">130g</span>
+                    </div>
+                    <div class="bg-yellow-50 p-3 rounded-xl">
+                        <span class="block text-sm text-gray-500 uppercase tracking-wide">Greixos</span>
+                        <span class="text-xl font-bold text-yellow-600">65g</span>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-xl">
+                        <span class="block text-sm text-gray-500 uppercase tracking-wide">Carbs</span>
+                        <span class="text-xl font-bold text-green-700">160g</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Repartiment per àpats (Es generarà per JS a partir del Sheet) -->
+            <h3 class="text-lg font-bold text-gray-800 mb-3">Repartiment per àpats</h3>
+            <div class="space-y-4">
+                <!-- Exemple d'estructura d'un àpat -->
+                <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-bold text-gym-pink">Àpat 1 (Esmorzar)</h4>
+                        <span class="text-sm font-bold text-gray-600">450 kcal</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500 mb-2">
+                        <span>P: 35g</span> • <span>G: 15g</span> • <span>C: 40g</span>
+                    </div>
+                    <p class="text-xs text-gray-400 italic">Obs: Ideal abans d'entrenar.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('side-menu');
+            const overlay = document.getElementById('menu-overlay');
+            menu.classList.toggle('translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+        
+        function mostrarPantalla(id) {
+            document.querySelectorAll('main > div').forEach(el => el.classList.add('hidden-screen'));
+            document.getElementById(id).classList.remove('hidden-screen');
+        }
+        
+        // Per defecte mostrem la de nutrició per provar el disseny
+        window.onload = function() { mostrarPantalla('screen-nutricio'); }
+    </script>
+</body>
+</html>
