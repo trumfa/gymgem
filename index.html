@@ -6,31 +6,17 @@
     <title>Gym Cream - Entrenament</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'gym-pink': '#ec4899',
-                        'gym-pink-light': '#fdf2f8',
-                        'gym-pink-dark': '#be185d',
-                    }
-                }
-            }
-        }
+        tailwind.config = { theme: { extend: { colors: { 'gym-pink': '#ec4899', 'gym-pink-light': '#fdf2f8', 'gym-pink-dark': '#be185d' } } } }
     </script>
-    <style>
-        .hidden-screen { display: none; }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    </style>
+    <style> .hidden-screen { display: none; } .fade-in { animation: fadeIn 0.3s ease-in-out; } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } </style>
 </head>
 <body class="bg-gym-pink-light text-gray-800 font-sans antialiased h-screen flex flex-col">
 
     <!-- CAPÇALERA -->
-    <header class="bg-white shadow-md p-4 flex justify-between items-center relative z-20">
+    <header class="bg-white shadow-md p-4 flex justify-between items-center relative z-20 shrink-0">
         <div class="flex items-center gap-3">
-            <img src="Gymcream.png" alt="Logo Gym Cream" class="h-12 w-12 rounded-full border-2 border-gym-pink object-cover shadow-sm">
-            <h1 class="text-xl font-bold text-gym-pink-dark">Gym Cream</h1>
+            <img src="Gymcream.jpg" alt="Logo Gym Cream" class="h-12 w-12 rounded-full border-2 border-gym-pink object-cover shadow-sm">
+            <h1 class="text-xl font-bold text-gym-pink-dark" onclick="if(appData.estat === 'ok') mostrarPantalla('screen-nutricio')">Gym Cream</h1>
         </div>
         <button id="btn-menu" class="text-gym-pink-dark focus:outline-none p-2 hidden" onclick="toggleMenu()">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -47,9 +33,8 @@
                 </button>
             </div>
             <ul class="space-y-4">
-                <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium" onclick="alert('Properament: Entrenament'); toggleMenu();">Entrenament d'avui</a></li>
-                <li><a href="#" class="block text-gym-pink font-bold" onclick="mostrarPantalla('screen-nutricio'); toggleMenu();">Nutrició</a></li>
-                <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium" onclick="alert('Properament: Gràfics'); toggleMenu();">Mides i Gràfics</a></li>
+                <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium" onclick="mostrarPantalla('screen-nutricio'); toggleMenu();">Inici / Nutrició</a></li>
+                <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium" onclick="mostrarPantalla('screen-rutines'); toggleMenu();">Les meves Rutines</a></li>
                 <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium" onclick="tancarSessio()">Tancar Sessió</a></li>
             </ul>
         </div>
@@ -57,261 +42,219 @@
     <div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-10 hidden" onclick="toggleMenu()"></div>
 
     <!-- CONTINGUT PRINCIPAL -->
-    <main class="flex-grow p-6 flex flex-col justify-center items-center relative z-0 overflow-y-auto w-full">
+    <main class="flex-grow p-4 flex flex-col relative z-0 overflow-y-auto w-full max-w-md mx-auto">
 
         <!-- PANTALLA 1: Carregant -->
-        <div id="screen-loading" class="text-center fade-in">
+        <div id="screen-loading" class="text-center fade-in flex flex-col justify-center h-full items-center mt-20">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gym-pink border-t-transparent mb-4"></div>
-            <p class="text-gray-500 font-medium animate-pulse" id="loading-text">Connectant...</p>
+            <p class="text-gray-500 font-medium animate-pulse" id="loading-text">Connectant amb l'API...</p>
         </div>
 
         <!-- PANTALLA 2: PIN d'accés -->
-        <div id="screen-login" class="hidden-screen w-full max-w-sm bg-white rounded-2xl shadow-xl p-8 text-center fade-in">
+        <div id="screen-login" class="hidden-screen w-full bg-white rounded-2xl shadow-xl p-8 text-center fade-in mt-10">
             <h2 class="text-2xl font-bold text-gym-pink-dark mb-2" id="greeting-name">Hola!</h2>
             <p class="text-gray-500 mb-6 text-sm">Introdueix el teu PIN secret per continuar.</p>
-            
             <input type="password" id="input-pin" maxlength="4" pattern="\d*" placeholder="••••" class="w-full text-center text-4xl tracking-widest text-gym-pink-dark font-bold border-2 border-pink-200 rounded-xl py-3 mb-6 focus:outline-none focus:border-gym-pink transition-colors bg-gym-pink-light">
-            
-            <button onclick="validarPin()" class="w-full bg-gym-pink text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gym-pink-dark transition-colors active:scale-95">
+            <button onclick="iniciarApp(document.getElementById('input-pin').value)" class="w-full bg-gym-pink text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gym-pink-dark transition-colors">
                 Entrar
             </button>
-            <p id="error-pin" class="text-red-500 text-sm mt-4 hidden">PIN incorrecte. Torna-ho a provar.</p>
+            <p id="error-pin" class="text-red-500 text-sm mt-4 hidden">PIN incorrecte.</p>
         </div>
 
-        <!-- PANTALLA 3: Formulari d'Alta -->
-        <div id="screen-alta" class="hidden-screen w-full max-w-md bg-white rounded-2xl shadow-xl p-8 fade-in">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold text-gym-pink-dark mb-1">Benvinguda a Gym Cream</h2>
-                <p class="text-gray-500 text-sm">Creem el teu perfil d'entrenament</p>
-            </div>
-            
-            <form id="form-alta" class="space-y-4" onsubmit="enviarAlta(event)">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Com et dius?</label>
-                    <input type="text" id="alta-nom" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gym-pink outline-none">
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Naixement</label>
-                        <input type="date" id="alta-data" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gym-pink outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Sexe</label>
-                        <select id="alta-sexe" required class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none">
-                            <option value="Dona">Dona</option>
-                            <option value="Home">Home</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Alçada (cm)</label>
-                        <input type="number" id="alta-alcada" required class="w-full border border-gray-300 rounded-lg px-4 py-2 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Pes Actual (Kg)</label>
-                        <input type="number" id="alta-pes-actual" step="0.1" required class="w-full border border-gray-300 rounded-lg px-4 py-2 outline-none">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Objectiu Nutricional i d'Entrenament</label>
-                    <select id="alta-objectiu" required class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none">
-                        <option value="Perdre greix">Perdre greix (Dèficit calòric)</option>
-                        <option value="Manteniment">Manteniment (Mantenir pes)</option>
-                        <option value="Guanyar">Guanyar massa muscular (Superàvit)</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Pes objectiu final (Kg)</label>
-                    <input type="number" id="alta-pes-objectiu" step="0.1" required class="w-full border border-gray-300 rounded-lg px-4 py-2 outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Activitat diària</label>
-                    <select id="alta-activitat" required class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white outline-none">
-                        <option value="Sedentari">Sedentari (Treball d'oficina)</option>
-                        <option value="Actiu">Actiu (Feina dempeus)</option>
-                        <option value="Molt Actiu">Molt Actiu (Física intensa)</option>
-                    </select>
-                </div>
-
-                <div class="pt-4 border-t border-gray-100">
-                    <label class="block text-sm font-bold text-gym-pink-dark mb-1">Crea el teu PIN (4 dígits)</label>
-                    <input type="password" id="alta-pin" maxlength="4" pattern="\d*" required placeholder="••••" class="w-full text-center tracking-widest text-xl border-2 border-pink-200 rounded-lg px-4 py-2 bg-gym-pink-light outline-none">
-                </div>
-
-                <button type="submit" class="w-full mt-6 bg-gym-pink text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gym-pink-dark transition-colors">
-                    Donar d'Alta
-                </button>
-            </form>
+        <!-- PANTALLA 3: Formulari d'Alta (Simplificat visualment aquí) -->
+        <div id="screen-alta" class="hidden-screen w-full bg-white rounded-2xl shadow-xl p-8 fade-in mt-4">
+            <h2 class="text-2xl font-bold text-gym-pink-dark mb-4 text-center">Nova Alta</h2>
+            <p class="text-center text-sm text-gray-500 mb-4">Afegeix les teves dades a Google Sheets per començar.</p>
+            <p class="text-center text-xs text-gray-400">*(El formulari d'alta continua funcionant des del backend)*</p>
         </div>
 
-        <!-- PANTALLA NUTRICIÓ (Pauta descarregada del Sheet) -->
-        <div id="screen-nutricio" class="w-full max-w-md fade-in hidden-screen">
-            <h2 class="text-2xl font-bold text-gym-pink-dark mb-4 text-center">Pauta Nutricional</h2>
-            <div id="nutricio-content">
-                <!-- S'omplirà dinàmicament per JS -->
-            </div>
+        <!-- PANTALLA 4: NUTRICIÓ (Pàgina d'inici) -->
+        <div id="screen-nutricio" class="w-full fade-in hidden-screen pb-20">
+            <h2 class="text-2xl font-bold text-gym-pink-dark mb-4 text-center mt-2">Pauta Nutricional</h2>
+            <div id="nutricio-content"></div>
+            <!-- BOTÓ ENTRENAR A LA PÀGINA D'INICI -->
+            <button onclick="mostrarPantalla('screen-rutines')" class="w-full mt-6 bg-gym-pink text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:bg-gym-pink-dark transition-colors text-lg flex justify-center items-center gap-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Anar a Entrenar!
+            </button>
+        </div>
+
+        <!-- PANTALLA 5: SELECCIÓ DE RUTINA -->
+        <div id="screen-rutines" class="w-full fade-in hidden-screen">
+            <h2 class="text-2xl font-bold text-gym-pink-dark mb-4 text-center mt-2">Escull la Rutina</h2>
+            <div id="rutines-content" class="space-y-4"></div>
+        </div>
+
+        <!-- PANTALLA 6: ENTRENAMENT ACTIU -->
+        <div id="screen-entrenament" class="w-full fade-in hidden-screen pb-20">
+            <h2 class="text-xl font-bold text-gym-pink-dark mb-2 text-center" id="titol-entrenament">Rutina</h2>
+            <div id="exercicis-content" class="space-y-6 mt-4"></div>
+            <button onclick="finalitzarEntrenament()" class="w-full mt-8 bg-green-500 text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:bg-green-600 transition-colors text-lg">
+                ✅ Feina Feta
+            </button>
         </div>
 
     </main>
 
-    <!-- LÒGICA JAVASCRIPT AMB L'API -->
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwOKKk0NWelUgemqTxGFchdmwD4i6kDC0ZsUPt9DiSb3RoYEONi_sVXZzoQzb8qkhfuIg/exec";
+        let appData = {}; // Guardarem totes les dades aquí per no tornar a carregar
 
-        // Quan carrega la pàgina, mirem si hi ha dades a Google
-        window.onload = async function() {
+        window.onload = function() {
+            const savedPin = localStorage.getItem('gymcream_pin') || '';
+            iniciarApp(savedPin);
+        };
+
+        async function iniciarApp(pin) {
+            mostrarPantalla('screen-loading');
+            document.getElementById('error-pin').classList.add('hidden');
+            
             try {
-                const response = await fetch(API_URL + "?accio=comprovarEstat");
+                const response = await fetch(API_URL + "?pin=" + pin);
                 const data = await response.json();
                 
-                if (data.registrat) {
-                    document.getElementById('greeting-name').innerText = "Hola " + data.nom + "!";
-                    
-                    // Comprovem si tenim el PIN guardat al telèfon
-                    const savedPin = localStorage.getItem('gymcream_pin');
-                    if (savedPin) {
-                        document.getElementById('input-pin').value = savedPin;
-                        validarPin(); // Intentem entrar directament
-                    } else {
-                        mostrarPantalla('screen-login');
-                    }
-                } else {
+                if (data.estat === 'nou_usuari') {
                     mostrarPantalla('screen-alta');
+                } else if (data.estat === 'demana_pin') {
+                    document.getElementById('greeting-name').innerText = "Hola " + data.nom + "!";
+                    mostrarPantalla('screen-login');
+                    if (pin) document.getElementById('error-pin').classList.remove('hidden');
+                    localStorage.removeItem('gymcream_pin');
+                } else if (data.estat === 'ok') {
+                    appData = data; // Ho guardem tot a memòria
+                    localStorage.setItem('gymcream_pin', pin);
+                    document.getElementById('btn-menu').classList.remove('hidden');
+                    
+                    renderNutricio();
+                    renderRutines();
+                    mostrarPantalla('screen-nutricio'); // Pantalla per defecte
                 }
             } catch (error) {
                 document.getElementById('loading-text').innerText = "Error de connexió.";
                 console.error(error);
             }
-        };
-
-        // Funció per validar el PIN contra Google
-        async function validarPin() {
-            const pin = document.getElementById('input-pin').value;
-            if(pin.length !== 4) return;
-            
-            mostrarPantalla('screen-loading');
-            document.getElementById('loading-text').innerText = "Validant accés...";
-            
-            try {
-                // Demanem les dades personals. Si el PIN és incorrecte, l'API ens donarà "error"
-                const response = await fetch(API_URL + "?accio=getDadesPersonals&pin=" + pin);
-                const data = await response.json();
-                
-                if (data.status === "error") {
-                    mostrarPantalla('screen-login');
-                    document.getElementById('error-pin').classList.remove('hidden');
-                    localStorage.removeItem('gymcream_pin'); // Esborrem PIN invàlid
-                } else {
-                    // Accés concedit
-                    localStorage.setItem('gymcream_pin', pin);
-                    document.getElementById('btn-menu').classList.remove('hidden'); // Mostrem menú
-                    carregarPautaNutricional(pin);
-                }
-            } catch (error) {
-                alert("Error de xarxa: " + error);
-                mostrarPantalla('screen-login');
-            }
         }
 
-        // Funció per donar d'alta i escriure al Google Sheet
-        async function enviarAlta(e) {
-            e.preventDefault();
-            mostrarPantalla('screen-loading');
-            document.getElementById('loading-text').innerText = "Guardant perfil...";
+        function renderNutricio() {
+            const data = appData.nutricio;
+            let html = "";
             
-            const payload = {
-                nom: document.getElementById('alta-nom').value,
-                dataNaixement: document.getElementById('alta-data').value,
-                sexe: document.getElementById('alta-sexe').value,
-                alcada: document.getElementById('alta-alcada').value,
-                pesActual: document.getElementById('alta-pes-actual').value,
-                pesObjectiu: document.getElementById('alta-pes-objectiu').value,
-                factorActivitat: document.getElementById('alta-activitat').value,
-                objectiu: document.getElementById('alta-objectiu').value,
-                pin: document.getElementById('alta-pin').value
-            };
-
-            try {
-                const response = await fetch(API_URL + "?accio=guardarAlta", {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-                
-                if (data.status === "success") {
-                    // Guardem el PIN i simulem l'accés
-                    localStorage.setItem('gymcream_pin', payload.pin);
-                    document.getElementById('input-pin').value = payload.pin;
-                    window.location.reload(); // Recarreguem perquè torni a passar pel procés d'inici
-                } else {
-                    alert("Error guardant dades: " + data.missatge);
-                    mostrarPantalla('screen-alta');
-                }
-            } catch (error) {
-                alert("Error de xarxa: " + error);
-                mostrarPantalla('screen-alta');
+            if (!data || Object.keys(data).length === 0) {
+                document.getElementById('nutricio-content').innerHTML = `
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
+                        <p class="text-gray-500 mb-2">No hi ha cap dieta assignada al Google Sheet.</p>
+                        <p class="text-xs text-gray-400">Afegeix-la a la pestanya 'Nutrició'.</p>
+                    </div>`;
+                return;
             }
+
+            for (const moment in data) {
+                if (moment.toUpperCase() === "TOTAL DIA") {
+                    html = `
+                    <div class="bg-white rounded-2xl shadow-md p-5 mb-6 border-t-4 border-gym-pink">
+                        <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Total Diari</h3>
+                        <div class="grid grid-cols-4 gap-2 text-center">
+                            <div class="bg-gym-pink-light p-2 rounded-lg"><span class="block text-[10px] text-gray-500 uppercase">Kcal</span><span class="font-bold text-gym-pink-dark">${data[moment].kcal}</span></div>
+                            <div class="bg-blue-50 p-2 rounded-lg"><span class="block text-[10px] text-gray-500 uppercase">Prot</span><span class="font-bold text-blue-700">${data[moment].proteines}g</span></div>
+                            <div class="bg-yellow-50 p-2 rounded-lg"><span class="block text-[10px] text-gray-500 uppercase">Greix</span><span class="font-bold text-yellow-600">${data[moment].greixos}g</span></div>
+                            <div class="bg-green-50 p-2 rounded-lg"><span class="block text-[10px] text-gray-500 uppercase">Carbs</span><span class="font-bold text-green-700">${data[moment].carbs}g</span></div>
+                        </div>
+                    </div><div class="space-y-3">` + html;
+                } else {
+                    html += `
+                    <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-gym-pink">${moment}</h4>
+                            <span class="text-sm font-bold text-gray-600">${data[moment].kcal} kcal</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>P: ${data[moment].proteines}g</span> • <span>G: ${data[moment].greixos}g</span> • <span>C: ${data[moment].carbs}g</span>
+                        </div>
+                    </div>`;
+                }
+            }
+            document.getElementById('nutricio-content').innerHTML = html + "</div>";
         }
 
-        // Carrega la pestanya 6 (Nutrició) del Google Sheet
-        async function carregarPautaNutricional(pin) {
-            mostrarPantalla('screen-loading');
-            document.getElementById('loading-text').innerText = "Carregant dieta...";
+        function renderRutines() {
+            const rutines = appData.rutines;
+            let html = "";
             
-            try {
-                const response = await fetch(API_URL + "?accio=getNutricio&pin=" + pin);
-                const data = await response.json();
+            if (!rutines || Object.keys(rutines).length === 0) {
+                html = `<p class="text-center text-gray-500 mt-10">No hi ha rutines a la pestanya 'Rutines'.</p>`;
+            } else {
+                for (const nom in rutines) {
+                    html += `
+                    <button onclick="carregarEntrenament('${nom}')" class="w-full bg-white rounded-xl shadow-sm p-5 border-l-4 border-gym-pink hover:shadow-md transition-shadow text-left flex justify-between items-center">
+                        <span class="font-bold text-gray-800 text-lg">${nom}</span>
+                        <span class="text-xs bg-gym-pink-light text-gym-pink-dark px-2 py-1 rounded-full">${rutines[nom].length} ex.</span>
+                    </button>`;
+                }
+            }
+            document.getElementById('rutines-content').innerHTML = html;
+        }
+
+        function carregarEntrenament(nomRutina) {
+            document.getElementById('titol-entrenament').innerText = nomRutina;
+            const exercicis = appData.rutines[nomRutina];
+            let html = "";
+            
+            exercicis.forEach((ex, index) => {
+                const infoEx = appData.exercicis[ex.exercici] || {};
+                const esTemps = infoEx.tipus === 'Temps';
                 
-                let html = "";
-                // Construïm els blocs d'àpats dinàmicament
-                for (const moment in data) {
-                    if (moment.toUpperCase() === "TOTAL DIA") {
-                        // Caixa resum
-                        html = `
-                        <div class="bg-white rounded-2xl shadow-md p-5 mb-6 border-t-4 border-gym-pink">
-                            <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Total Diari Objectiu</h3>
-                            <div class="grid grid-cols-2 gap-4 text-center">
-                                <div class="bg-gym-pink-light p-3 rounded-xl"><span class="block text-xs text-gray-500 uppercase">Kcal</span><span class="text-2xl font-bold text-gym-pink-dark">${data[moment].kcal}</span></div>
-                                <div class="bg-blue-50 p-3 rounded-xl"><span class="block text-xs text-gray-500 uppercase">Prot</span><span class="text-xl font-bold text-blue-700">${data[moment].proteines}g</span></div>
-                                <div class="bg-yellow-50 p-3 rounded-xl"><span class="block text-xs text-gray-500 uppercase">Greix</span><span class="text-xl font-bold text-yellow-600">${data[moment].greixos}g</span></div>
-                                <div class="bg-green-50 p-3 rounded-xl"><span class="block text-xs text-gray-500 uppercase">Carbs</span><span class="text-xl font-bold text-green-700">${data[moment].carbs}g</span></div>
-                            </div>
-                        </div><h3 class="text-lg font-bold text-gray-800 mb-3">Repartiment per àpats</h3><div class="space-y-4">` + html;
-                    } else {
-                        // Caixa d'àpat individual
-                        html += `
-                        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                            <div class="flex justify-between items-center mb-2">
-                                <h4 class="font-bold text-gym-pink">${moment}</h4>
-                                <span class="text-sm font-bold text-gray-600">${data[moment].kcal} kcal</span>
-                            </div>
-                            <div class="flex justify-between text-sm text-gray-500 mb-2">
-                                <span>P: ${data[moment].proteines}g</span> • <span>G: ${data[moment].greixos}g</span> • <span>C: ${data[moment].carbs}g</span>
-                            </div>
-                            <p class="text-xs text-gray-400 italic">Obs: ${data[moment].observacions || "Sense observacions"}</p>
+                html += `
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                        <h3 class="font-bold text-gym-pink-dark text-lg">${ex.exercici}</h3>
+                        <div class="flex gap-2">
+                            ${infoEx.video ? `<a href="${infoEx.video}" target="_blank" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-md font-bold">Vídeo</a>` : ''}
+                            <button class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-md font-bold">+</button>
+                        </div>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <div class="flex justify-between text-xs text-gray-500 mb-2 px-1">
+                            <span class="w-10">Sèrie</span>
+                            <span class="w-16 text-center">${esTemps ? 'Segs' : 'Reps'}</span>
+                            <span class="w-16 text-center">Kg</span>
+                            <span class="w-12 text-center">@ RPE</span>
+                            <span class="w-8"></span>
                         </div>`;
-                    }
+                
+                // Generem les files segons les sèries d'escalfament i efectives
+                let numSerie = 1;
+                const totalSeries = (parseInt(ex.seriesEscalfament) || 0) + (parseInt(ex.seriesEfectives) || 0);
+                
+                for(let i=0; i<totalSeries; i++) {
+                    let esEscalfament = i < (parseInt(ex.seriesEscalfament) || 0);
+                    let color = esEscalfament ? "bg-orange-50 text-orange-800" : "bg-gray-100 text-gray-800";
+                    let etiqueta = esEscalfament ? "Esc" : numSerie++;
+                    
+                    html += `
+                    <div class="flex justify-between items-center gap-2">
+                        <div class="${color} w-10 h-10 flex items-center justify-center rounded-lg font-bold text-sm">${etiqueta}</div>
+                        <input type="number" placeholder="${ex.objectiu}" class="w-16 h-10 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
+                        <input type="number" placeholder="Kg" class="w-16 h-10 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
+                        <input type="number" placeholder="${ex.rpe}" class="w-12 h-10 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
+                        <button class="w-10 h-10 bg-gray-200 hover:bg-green-500 hover:text-white rounded-lg flex items-center justify-center transition-colors">✓</button>
+                    </div>`;
                 }
                 
-                document.getElementById('nutricio-content').innerHTML = html + "</div>";
-                mostrarPantalla('screen-nutricio');
-                
-            } catch (error) {
-                alert("Error carregant dieta: " + error);
-            }
+                html += `</div></div>`;
+            });
+            
+            document.getElementById('exercicis-content').innerHTML = html;
+            mostrarPantalla('screen-entrenament');
         }
 
-        // Controls de la interfície
+        function finalitzarEntrenament() {
+            alert("Llest! Aquesta acció enviarà les dades al Sheet d'Entrenament.");
+            mostrarPantalla('screen-nutricio');
+        }
+
         function mostrarPantalla(id) {
             document.querySelectorAll('main > div').forEach(el => el.classList.add('hidden-screen'));
             document.getElementById(id).classList.remove('hidden-screen');
-            // Amaguem el menú lateral canviant de pantalla
             document.getElementById('side-menu').classList.add('translate-x-full');
             document.getElementById('menu-overlay').classList.add('hidden');
         }
