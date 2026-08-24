@@ -1,0 +1,13 @@
+{
+  "name": "GymCream — Entrenament de Munyanyo",
+  "short_name": "GymCream",
+  "description": "Entrenament i nutrició personalitzats, per GymCream.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff5f8",
+  "theme_color": "#831843",
+  "icons": [
+    { "src": "Gymcream.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
