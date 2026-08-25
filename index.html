@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#831843">
+<meta name="theme-color" content="#0b0b0d">
 <title>GymCream — Entrenament de Munyanyo</title>
-<link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="Gymcream.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,11 +16,17 @@
     theme: {
       extend: {
         colors: {
-          'gym-pink': '#ec4899',
-          'gym-pink-light': '#fff5f8',
-          'gym-berry': '#831843',
-          'gym-mint': '#10b981',
-          'gym-amber': '#f59e0b'
+          ink: '#0b0b0d',          // fons de pàgina
+          surface: '#151519',      // targetes
+          surface2: '#1e1e24',     // camps i zones internes
+          line: '#2e2e36',         // vores
+          txt: '#f4f4f5',
+          muted: '#9ca3af',
+          pink: '#ff4da6',
+          pinksoft: '#ff8cc4',
+          mint: '#34d399',
+          amber: '#fbbf24',
+          sky: '#60a5fa'
         },
         fontFamily: {
           display: ['Fredoka', 'sans-serif'],
@@ -32,359 +37,397 @@
   }
 </script>
 <style>
-  body { font-family: 'Plus Jakarta Sans', sans-serif; }
-  .font-display { font-family: 'Fredoka', sans-serif; }
-  /* !important perquè Tailwind injecta els seus estils DESPRÉS d'aquest
-     bloc: sense això, classes com "flex" o "grid" guanyen i l'element
-     no s'arriba a amagar mai. */
+  /* !important: Tailwind injecta els seus estils DESPRÉS d'aquest bloc,
+     i sense això classes com "flex" o "grid" impedeixen amagar l'element. */
   .hidden-screen { display: none !important; }
-  .fade-in { animation: fadeIn .3s ease-in-out; }
+
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0b0b0d; }
+  .font-display { font-family: 'Fredoka', sans-serif; }
+  .fade-in { animation: fadeIn .25s ease-in-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  :focus-visible { outline: 3px solid #831843; outline-offset: 2px; border-radius: 4px; }
+  :focus-visible { outline: 2px solid #ff4da6; outline-offset: 2px; border-radius: 6px; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-  .swirl-ring { background: conic-gradient(#ec4899 calc(var(--pct,0) * 1%), #fbcfe8 0); border-radius: 9999px; transition: background .4s ease; }
-  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 50; }
+  .swirl-ring { background: conic-gradient(#ff4da6 calc(var(--pct,0) * 1%), #2e2e36 0); border-radius: 9999px; transition: background .4s ease; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 60; max-width: 90vw; }
+  input, select, textarea { color-scheme: dark; }
+  input::placeholder, textarea::placeholder { color: #6b7280; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #2e2e36; border-radius: 8px; }
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   }
 </style>
 </head>
-<body class="bg-gym-pink-light text-gray-800 antialiased h-screen flex flex-col">
+<body class="bg-ink text-txt antialiased h-screen flex flex-col">
 
-<a href="#contingut-principal" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:bg-white focus:px-4 focus:py-2 focus:rounded-lg focus:z-50">Salta al contingut</a>
+<a href="#contingut-principal" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:bg-surface focus:px-4 focus:py-2 focus:rounded-lg focus:z-50">Salta al contingut</a>
 
 <!-- CAPÇALERA -->
-<header class="bg-white shadow-md p-4 flex justify-between items-center relative z-20 shrink-0">
+<header class="bg-surface border-b border-line px-4 py-3 flex justify-between items-center relative z-20 shrink-0">
   <div class="flex items-center gap-3">
-    <img src="Gymcream.png" alt="Logo GymCream" class="h-14 w-auto object-contain">
-    <h1 class="text-xl font-display font-bold text-gym-berry cursor-pointer" onclick="if(appData.estat==='ok') mostrarPantalla('screen-nutricio')">GymCream</h1>
+    <img src="Gymcream.png" alt="Logo GymCream" class="h-12 w-auto object-contain">
+    <div>
+      <h1 class="text-lg font-display font-bold text-pink leading-tight">GymCream</h1>
+      <p id="etiqueta-rol" class="text-[11px] text-muted leading-tight hidden-screen">Mode administrador</p>
+    </div>
   </div>
-  <button id="btn-menu" class="text-gym-berry focus:outline-none p-2 hidden" aria-label="Obrir menú" onclick="toggleMenu()">
+  <button id="btn-menu" class="text-txt p-2 rounded-lg hover:bg-surface2 hidden-screen" aria-label="Obrir menú" onclick="toggleMenu()">
     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
   </button>
 </header>
 
 <!-- MENÚ LATERAL -->
-<nav id="side-menu" aria-label="Menú principal" class="fixed inset-y-0 right-0 w-72 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-30">
+<nav id="side-menu" aria-label="Menú principal" class="fixed inset-y-0 right-0 w-72 bg-surface border-l border-line shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-40">
   <div class="p-6">
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <h2 class="text-lg font-display font-bold text-gym-berry">Menú</h2>
-      <button onclick="toggleMenu()" class="text-gray-500 hover:text-gym-pink p-2" aria-label="Tancar menú">
+    <div class="flex justify-between items-center mb-5 border-b border-line pb-4">
+      <h2 class="text-lg font-display font-bold text-pink">Menú</h2>
+      <button onclick="toggleMenu()" class="text-muted hover:text-pink p-2" aria-label="Tancar menú">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
       </button>
     </div>
-    <ul class="space-y-2">
-      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="mostrarPantalla('screen-nutricio'); return false;">Inici / Nutrició</a></li>
-      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="obrirCalculadora(); return false;">Calculadora de nutrició</a></li>
-      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="mostrarPantalla('screen-rutines'); return false;">Les meves Rutines</a></li>
-      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="obrirSeguiment(); return false;">Seguiment (pes i mesures)</a></li>
-      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="obrirEvolucio(); return false;">Evolució</a></li>
-      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="tancarSessio()">Tancar Sessió</a></li>
+    <ul class="space-y-1">
+      <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="mostrarPantalla('screen-nutricio'); return false;">Inici / Nutrició</a></li>
+      <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="mostrarPantalla('screen-rutines'); return false;">Entrenar</a></li>
+      <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirSeguiment(); return false;">Seguiment</a></li>
+      <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirEvolucio(); return false;">Evolució</a></li>
     </ul>
+    <div id="menu-admin" class="hidden-screen mt-5 pt-4 border-t border-line">
+      <p class="text-[11px] uppercase tracking-wide text-muted mb-2">Administració</p>
+      <ul class="space-y-1">
+        <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirCalculadora(); return false;">Pla de nutrició</a></li>
+        <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirAdminExercicis(); return false;">Base d'exercicis</a></li>
+        <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirAdminRutines(); return false;">Editar rutines</a></li>
+        <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirAdminDades(); return false;">Dades personals</a></li>
+      </ul>
+    </div>
+    <div class="mt-5 pt-4 border-t border-line">
+      <a href="#" class="block text-muted hover:text-pink font-medium py-2" onclick="tancarSessio(); return false;">Tancar sessió</a>
+    </div>
   </div>
 </nav>
-<div id="menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-10 hidden" onclick="toggleMenu()"></div>
+<div id="menu-overlay" class="fixed inset-0 bg-black/70 z-30 hidden-screen" onclick="toggleMenu()"></div>
 
-<!-- CONTINGUT PRINCIPAL -->
-<main id="contingut-principal" class="flex-grow p-4 flex flex-col relative z-0 overflow-y-auto w-full max-w-md mx-auto">
+<!-- CONTINGUT -->
+<main id="contingut-principal" class="flex-grow p-4 relative z-0 overflow-y-auto w-full max-w-md mx-auto">
 
-  <!-- PANTALLA: Carregant -->
-  <div id="screen-loading" class="text-center fade-in flex flex-col justify-center h-full items-center mt-20">
-    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gym-pink border-t-transparent mb-4"></div>
-    <p class="text-gray-500 font-medium" id="loading-text">Connectant amb l'API...</p>
+  <!-- Carregant -->
+  <div id="screen-loading" class="text-center fade-in flex flex-col justify-center items-center py-24">
+    <div class="animate-spin rounded-full h-12 w-12 border-4 border-pink border-t-transparent mb-4"></div>
+    <p class="text-muted font-medium" id="loading-text">Connectant…</p>
   </div>
 
-  <!-- PANTALLA: PIN -->
-  <div id="screen-login" class="hidden-screen w-full bg-white rounded-3xl shadow-xl p-8 text-center fade-in mt-10">
-    <h2 class="text-2xl font-display font-bold text-gym-berry mb-2" id="greeting-name">Hola!</h2>
-    <p class="text-gray-500 mb-6 text-sm">Introdueix el teu PIN secret per continuar.</p>
+  <!-- PIN -->
+  <div id="screen-login" class="hidden-screen w-full bg-surface border border-line rounded-3xl p-8 text-center fade-in mt-10">
+    <h2 class="text-2xl font-display font-bold text-pink mb-2" id="greeting-name">Hola!</h2>
+    <p class="text-muted mb-6 text-sm">Introdueix el teu PIN per continuar.</p>
     <label for="input-pin" class="sr-only">PIN de 4 dígits</label>
     <input autocomplete="off" type="password" id="input-pin" inputmode="numeric" maxlength="4" pattern="\d*" placeholder="••••"
-      class="w-full text-center text-4xl tracking-widest text-gym-berry font-bold border-2 border-pink-200 rounded-xl py-3 mb-6 focus:outline-none focus:border-gym-pink transition-colors bg-gym-pink-light">
-    <button onclick="iniciarApp(document.getElementById('input-pin').value)" class="w-full bg-gym-pink text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gym-berry transition-colors">
-      Entrar
-    </button>
-    <p id="error-pin" class="text-red-500 text-sm mt-4 hidden" role="alert">PIN incorrecte.</p>
+      onkeydown="if(event.key==='Enter') iniciarApp(this.value)"
+      class="w-full text-center text-4xl tracking-widest text-txt font-bold border-2 border-line rounded-xl py-3 mb-6 focus:outline-none focus:border-pink bg-surface2">
+    <button onclick="iniciarApp(document.getElementById('input-pin').value)" class="w-full bg-pink text-ink font-bold py-3.5 rounded-xl hover:bg-pinksoft transition-colors">Entrar</button>
+    <p id="error-pin" class="text-red-400 text-sm mt-4 hidden-screen" role="alert">PIN incorrecte.</p>
   </div>
 
-  <!-- PANTALLA: Alta -->
-  <div id="screen-alta" class="hidden-screen w-full bg-white rounded-3xl shadow-xl p-6 fade-in mt-4 mb-6">
-    <h2 class="text-2xl font-display font-bold text-gym-berry mb-1 text-center">Benvinguda, Munyanyo 🍦</h2>
-    <p class="text-center text-sm text-gray-500 mb-6">Omple les teves dades per començar.</p>
+  <!-- Alta -->
+  <div id="screen-alta" class="hidden-screen w-full bg-surface border border-line rounded-3xl p-6 fade-in mt-4 mb-6">
+    <h2 class="text-2xl font-display font-bold text-pink mb-1 text-center">Benvinguda, Munyanyo 🍦</h2>
+    <p class="text-center text-sm text-muted mb-6">Omple les teves dades per començar.</p>
     <form id="form-alta" autocomplete="off" class="space-y-4" onsubmit="return false;">
       <div>
-        <label for="alta-nom" class="block text-sm font-semibold text-gray-600 mb-1">Nom</label>
-        <input autocomplete="off" required id="alta-nom" type="text" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+        <label for="alta-nom" class="block text-sm font-semibold text-muted mb-1">Nom</label>
+        <input autocomplete="off" required id="alta-nom" type="text" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none">
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label for="alta-naixement" class="block text-sm font-semibold text-gray-600 mb-1">Naixement</label>
-          <input autocomplete="off" required id="alta-naixement" type="date" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <label for="alta-naixement" class="block text-sm font-semibold text-muted mb-1">Naixement</label>
+          <input autocomplete="off" required id="alta-naixement" type="date" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none">
         </div>
         <div>
-          <label for="alta-sexe" class="block text-sm font-semibold text-gray-600 mb-1">Sexe</label>
-          <select required id="alta-sexe" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none bg-white">
-            <option value="">Tria...</option>
-            <option>Dona</option>
-            <option>Home</option>
+          <label for="alta-sexe" class="block text-sm font-semibold text-muted mb-1">Sexe</label>
+          <select required id="alta-sexe" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none">
+            <option value="">Tria…</option><option>Dona</option><option>Home</option>
           </select>
         </div>
       </div>
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid grid-cols-3 gap-2">
         <div>
-          <label for="alta-alcada" class="block text-sm font-semibold text-gray-600 mb-1">Alçada (cm)</label>
-          <input autocomplete="off" required id="alta-alcada" type="number" min="100" max="230" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <label for="alta-alcada" class="block text-xs font-semibold text-muted mb-1">Alçada (cm)</label>
+          <input autocomplete="off" required id="alta-alcada" type="number" min="100" max="230" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 focus:border-pink outline-none">
         </div>
         <div>
-          <label for="alta-pes" class="block text-sm font-semibold text-gray-600 mb-1">Pes actual (kg)</label>
-          <input autocomplete="off" required id="alta-pes" type="number" step="0.1" min="30" max="250" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <label for="alta-pes" class="block text-xs font-semibold text-muted mb-1">Pes (kg)</label>
+          <input autocomplete="off" required id="alta-pes" type="number" step="0.1" min="30" max="250" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 focus:border-pink outline-none">
         </div>
         <div>
-          <label for="alta-pes-obj" class="block text-sm font-semibold text-gray-600 mb-1">Pes objectiu</label>
-          <input autocomplete="off" required id="alta-pes-obj" type="number" step="0.1" min="30" max="250" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <label for="alta-pes-obj" class="block text-xs font-semibold text-muted mb-1">Objectiu</label>
+          <input autocomplete="off" required id="alta-pes-obj" type="number" step="0.1" min="30" max="250" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 focus:border-pink outline-none">
         </div>
       </div>
       <div>
-        <label for="alta-activitat" class="block text-sm font-semibold text-gray-600 mb-1">Nivell d'activitat</label>
-        <select required id="alta-activitat" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none bg-white">
-          <option value="">Tria...</option>
-          <option>Sedentari</option>
-          <option>Lleuger</option>
-          <option>Moderat</option>
-          <option>Actiu</option>
-          <option>Molt actiu</option>
+        <label for="alta-activitat" class="block text-sm font-semibold text-muted mb-1">Nivell d'activitat</label>
+        <select required id="alta-activitat" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none">
+          <option value="">Tria…</option><option>Sedentari</option><option>Lleuger</option><option>Moderat</option><option>Actiu</option><option>Molt actiu</option>
         </select>
       </div>
       <div>
-        <label for="alta-objectiu" class="block text-sm font-semibold text-gray-600 mb-1">Objectiu</label>
-        <select required id="alta-objectiu" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none bg-white">
-          <option value="">Tria...</option>
-          <option>Perdre greix</option>
-          <option>Guanyar múscul</option>
-          <option>Recomposició</option>
-          <option>Manteniment</option>
+        <label for="alta-objectiu" class="block text-sm font-semibold text-muted mb-1">Objectiu</label>
+        <select required id="alta-objectiu" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none">
+          <option value="">Tria…</option><option>Perdre greix</option><option>Guanyar múscul</option><option>Recomposició</option><option>Manteniment</option>
         </select>
       </div>
       <div>
-        <label for="alta-pin" class="block text-sm font-semibold text-gray-600 mb-1">Crea un PIN de 4 dígits</label>
-        <input autocomplete="off" required id="alta-pin" type="password" inputmode="numeric" maxlength="4" pattern="\d{4}" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none text-center tracking-widest text-xl">
+        <label for="alta-pin" class="block text-sm font-semibold text-muted mb-1">Crea un PIN de 4 dígits</label>
+        <input autocomplete="off" required id="alta-pin" type="password" inputmode="numeric" maxlength="4" pattern="\d{4}" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none text-center tracking-widest text-xl">
       </div>
-      <button onclick="enviarAlta()" class="w-full bg-gym-pink text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gym-berry transition-colors mt-2">
-        Crear el meu compte
-      </button>
-      <p id="error-alta" class="text-red-500 text-sm text-center hidden" role="alert">Falten camps per omplir.</p>
+      <button onclick="enviarAlta()" class="w-full bg-pink text-ink font-bold py-3.5 rounded-xl hover:bg-pinksoft transition-colors mt-2">Crear el compte</button>
+      <p id="error-alta" class="text-red-400 text-sm text-center hidden-screen" role="alert">Falten camps per omplir.</p>
     </form>
   </div>
 
-  <!-- PANTALLA: NUTRICIÓ (Inici) -->
+  <!-- NUTRICIÓ (inici) -->
   <div id="screen-nutricio" class="w-full fade-in hidden-screen pb-20">
-    <h2 class="text-2xl font-display font-bold text-gym-berry mb-4 text-center mt-2">Pauta Nutricional</h2>
+    <h2 class="text-2xl font-display font-bold text-pink mb-4 text-center mt-1">La teva pauta</h2>
     <div id="nutricio-content"></div>
-    <button onclick="obrirCalculadora()" class="w-full mt-3 bg-white border-2 border-gym-pink text-gym-berry font-bold py-3 px-4 rounded-xl hover:bg-gym-pink-light transition-colors">
-      🧮 Revisar el pla de nutrició
+    <button id="btn-editar-nutricio" onclick="obrirCalculadora()" class="hidden-screen w-full mt-3 bg-surface border border-pink text-pink font-bold py-3 rounded-xl hover:bg-surface2 transition-colors">
+      Editar el pla de nutrició
     </button>
-    <button onclick="mostrarPantalla('screen-rutines')" class="w-full mt-3 bg-gym-pink text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:bg-gym-berry transition-colors text-lg flex justify-center items-center gap-2">
+    <button onclick="mostrarPantalla('screen-rutines')" class="w-full mt-3 bg-pink text-ink font-bold py-4 rounded-xl hover:bg-pinksoft transition-colors text-lg flex justify-center items-center gap-2">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-      Anar a Entrenar!
+      Anar a entrenar
     </button>
   </div>
 
-  <!-- PANTALLA: CALCULADORA DE NUTRICIÓ -->
+  <!-- CALCULADORA / PLA DE NUTRICIÓ (admin) -->
   <div id="screen-calculadora" class="w-full fade-in hidden-screen pb-24">
-    <h2 class="text-2xl font-display font-bold text-gym-berry mb-1 text-center mt-2">Calculadora de nutrició</h2>
-    <p class="text-center text-xs text-gray-500 mb-4 px-4">Per fixar el pla de kcal i macros <strong>al principi</strong> (o quan canviï el pes/objectiu) — no cal refer-ho cada dia, un cop desat és el teu pla de referència.</p>
+    <h2 class="text-2xl font-display font-bold text-pink mb-1 text-center mt-1">Pla de nutrició</h2>
+    <p class="text-center text-xs text-muted mb-4 px-2">Es fixa al principi del programa (o quan canviï el pes o l'objectiu). No cal refer-lo cada dia.</p>
 
-    <div class="bg-white rounded-2xl shadow-md p-5 mb-4 flex items-center gap-4">
-      <div id="anell-kcal" class="swirl-ring h-20 w-20 shrink-0 flex items-center justify-center" style="--pct:0">
-        <div class="h-14 w-14 rounded-full bg-white flex flex-col items-center justify-center text-center">
-          <span class="text-[10px] text-gray-400 leading-none">assignat</span>
-          <span id="anell-pct" class="text-sm font-bold text-gym-berry leading-none mt-0.5">0%</span>
-        </div>
+    <!-- Explicació del càlcul -->
+    <div class="bg-surface border border-line rounded-2xl p-5 mb-4">
+      <h3 class="font-bold mb-3">1. Quantes calories?</h3>
+      <div class="text-sm space-y-1.5 mb-4">
+        <div class="flex justify-between"><span class="text-muted">Pes usat pel càlcul</span><span id="calc-pes-usat" class="font-semibold"></span></div>
+        <div class="flex justify-between"><span class="text-muted">Metabolisme basal</span><span id="calc-bmr" class="font-semibold"></span></div>
+        <div class="flex justify-between"><span class="text-muted">Manteniment (amb activitat)</span><span id="calc-manteniment" class="font-semibold"></span></div>
       </div>
-      <div class="flex-grow">
-        <p class="text-xs text-gray-500">Objectiu diari</p>
-        <p class="text-lg font-bold text-gray-800"><span id="calc-kcal-assignat">0</span> / <span id="calc-kcal-total">0</span> kcal</p>
-        <p class="text-xs text-gray-400" id="calc-manteniment"></p>
+      <label for="calc-ritme" class="block text-sm font-semibold text-muted mb-1">Ritme de canvi de pes</label>
+      <p class="text-[11px] text-muted mb-2" id="calc-ritme-ajuda"></p>
+      <div class="flex items-center gap-2 mb-3">
+        <input autocomplete="off" id="calc-ritme" type="number" step="25" class="w-28 bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none font-bold" oninput="recalcularMacros()">
+        <span class="text-sm text-muted">grams per setmana</span>
       </div>
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-md p-5 mb-4">
-      <h3 class="font-bold text-gray-800 mb-3">Objectiu total del dia</h3>
-      <div class="grid grid-cols-2 gap-3 mb-3">
-        <div>
-          <label for="calc-ritme" class="block text-xs font-semibold text-gray-500 mb-1" id="calc-ritme-label">Ritme setmanal (g)</label>
-          <input autocomplete="off" id="calc-ritme" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none" oninput="recalcularMacros()">
-        </div>
-        <div>
-          <label for="calc-kcal" class="block text-xs font-semibold text-gray-500 mb-1">Kcal objectiu</label>
-          <input autocomplete="off" id="calc-kcal" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none font-bold" oninput="actualitzarResumMoments()">
-        </div>
-      </div>
-      <div class="grid grid-cols-3 gap-3">
-        <div>
-          <label for="calc-proteina" class="block text-xs font-semibold text-blue-600 mb-1">Proteïna (g)</label>
-          <input autocomplete="off" id="calc-proteina" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
-        </div>
-        <div>
-          <label for="calc-greix" class="block text-xs font-semibold text-yellow-600 mb-1">Greix (g)</label>
-          <input autocomplete="off" id="calc-greix" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
-        </div>
-        <div>
-          <label for="calc-carbs" class="block text-xs font-semibold text-green-600 mb-1">Carbs (g)</label>
-          <input autocomplete="off" id="calc-carbs" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+      <div class="bg-surface2 rounded-xl p-3 flex justify-between items-center">
+        <span class="text-sm text-muted">Calories objectiu del dia</span>
+        <div class="flex items-center gap-2">
+          <input autocomplete="off" id="calc-kcal" type="number" class="w-24 bg-ink border border-line rounded-lg px-2 py-1.5 text-right font-bold text-pink outline-none focus:border-pink" oninput="actualitzarResumMoments()">
+          <span class="text-sm text-muted">kcal</span>
         </div>
       </div>
     </div>
 
-    <div class="flex justify-between items-center mb-2">
-      <h3 class="font-bold text-gray-800">Repartiment per moments</h3>
-      <button onclick="afegirMoment()" class="text-sm bg-gym-pink-light text-gym-berry font-bold px-3 py-1.5 rounded-full hover:bg-pink-100">+ Afegir moment</button>
+    <!-- Macros -->
+    <div class="bg-surface border border-line rounded-2xl p-5 mb-4">
+      <h3 class="font-bold mb-1">2. Repartiment en macros</h3>
+      <p class="text-[11px] text-muted mb-3">Suggerit automàticament. Pots ajustar-ho a mà si vols.</p>
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label for="calc-proteina" class="block text-xs font-semibold text-sky mb-1">Proteïna (g)</label>
+          <input autocomplete="off" id="calc-proteina" type="number" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-sky">
+        </div>
+        <div>
+          <label for="calc-greix" class="block text-xs font-semibold text-amber mb-1">Greix (g)</label>
+          <input autocomplete="off" id="calc-greix" type="number" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-amber">
+        </div>
+        <div>
+          <label for="calc-carbs" class="block text-xs font-semibold text-mint mb-1">Carbs (g)</label>
+          <input autocomplete="off" id="calc-carbs" type="number" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-mint">
+        </div>
+      </div>
     </div>
-    <div id="moments-content" class="space-y-3"></div>
 
-    <button onclick="desarNutricio()" class="w-full mt-6 bg-gym-mint text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:bg-emerald-600 transition-colors text-lg">
-      Desar nutrició
-    </button>
+    <!-- Repartiment per moments -->
+    <div class="bg-surface border border-line rounded-2xl p-5 mb-4">
+      <h3 class="font-bold mb-1">3. Repartiment durant el dia</h3>
+      <p class="text-[11px] text-muted mb-4">Distribueix els macros entre els moments. L'anell mostra quant portes assignat respecte l'objectiu.</p>
+
+      <div class="flex items-center gap-4 mb-4">
+        <div id="anell-kcal" class="swirl-ring h-20 w-20 shrink-0 flex items-center justify-center" style="--pct:0">
+          <div class="h-14 w-14 rounded-full bg-surface flex flex-col items-center justify-center text-center">
+            <span id="anell-pct" class="text-sm font-bold text-pink leading-none">0%</span>
+          </div>
+        </div>
+        <div class="flex-grow text-sm space-y-1">
+          <div class="flex justify-between"><span class="text-muted">Assignat als moments</span><span id="calc-kcal-assignat" class="font-semibold">0 kcal</span></div>
+          <div class="flex justify-between"><span class="text-muted">Objectiu del dia</span><span id="calc-kcal-total" class="font-semibold">0 kcal</span></div>
+          <div class="flex justify-between"><span class="text-muted">Queda per assignar</span><span id="calc-kcal-resta" class="font-semibold text-pink">0 kcal</span></div>
+        </div>
+      </div>
+
+      <button onclick="afegirMoment()" class="w-full text-sm bg-surface2 text-pink font-bold px-3 py-2.5 rounded-xl hover:bg-line mb-3">+ Afegir moment del dia</button>
+      <div id="moments-content" class="space-y-3"></div>
+    </div>
+
+    <button onclick="desarNutricio()" class="w-full bg-mint text-ink font-bold py-4 rounded-xl hover:opacity-90 transition text-lg">Desar el pla</button>
   </div>
 
-  <!-- PANTALLA: SELECCIÓ DE RUTINA -->
+  <!-- SELECCIÓ DE RUTINA -->
   <div id="screen-rutines" class="w-full fade-in hidden-screen">
-    <h2 class="text-2xl font-display font-bold text-gym-berry mb-4 text-center mt-2">Escull la Rutina</h2>
-    <div id="rutines-content" class="space-y-4"></div>
+    <h2 class="text-2xl font-display font-bold text-pink mb-4 text-center mt-1">Escull la rutina</h2>
+    <div id="rutines-content" class="space-y-3"></div>
   </div>
 
-  <!-- PANTALLA: ENTRENAMENT ACTIU -->
+  <!-- ENTRENAMENT -->
   <div id="screen-entrenament" class="w-full fade-in hidden-screen pb-24">
-    <h2 class="text-xl font-display font-bold text-gym-berry mb-2 text-center" id="titol-entrenament">Rutina</h2>
-    <div id="exercicis-content" class="space-y-6 mt-4"></div>
-    <button onclick="finalitzarEntrenament()" class="w-full mt-8 bg-gym-mint text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:bg-emerald-600 transition-colors text-lg">
-      ✅ Feina Feta
-    </button>
+    <div class="flex justify-between items-center mb-1 mt-1">
+      <h2 class="text-xl font-display font-bold text-pink" id="titol-entrenament">Rutina</h2>
+      <span id="rellotge-entrenament" class="text-xs text-muted"></span>
+    </div>
+    <p class="text-[11px] text-muted mb-3">Els valors en gris són l'objectiu. Prem ✓ per validar cada sèrie.</p>
+    <div id="exercicis-content" class="space-y-5"></div>
+    <button onclick="finalitzarEntrenament()" class="w-full mt-8 bg-mint text-ink font-bold py-4 rounded-xl hover:opacity-90 transition text-lg">✅ Feina feta</button>
+    <button onclick="cancelarEntrenament()" class="w-full mt-3 text-muted text-sm py-2 hover:text-red-400">Cancel·lar aquest entrenament</button>
   </div>
 
-  <!-- PANTALLA: SEGUIMENT (pes i mesures) -->
+  <!-- SEGUIMENT -->
   <div id="screen-seguiment" class="w-full fade-in hidden-screen pb-24">
-    <h2 class="text-2xl font-display font-bold text-gym-berry mb-1 text-center mt-2">Seguiment</h2>
-    <p class="text-center text-xs text-gray-500 mb-4">Pes: cada diumenge (mitjana 7 dies). Mesures: cada 15 dies.</p>
+    <h2 class="text-2xl font-display font-bold text-pink mb-1 text-center mt-1">Seguiment</h2>
+    <p class="text-center text-xs text-muted mb-4">Pes: cada diumenge (mitjana dels 7 dies). Mesures: cada 15 dies.</p>
 
-    <div class="bg-white rounded-2xl shadow-md p-5 mb-4">
-      <label for="seg-data" class="block text-sm font-semibold text-gray-600 mb-1">Data</label>
-      <input autocomplete="off" id="seg-data" type="date" class="w-full border border-gray-300 rounded-xl px-3 py-2 mb-4 focus:border-gym-pink outline-none">
-
-      <label for="seg-pes" class="block text-sm font-semibold text-gray-600 mb-1">Pes mitjà setmanal (kg)</label>
-      <input autocomplete="off" id="seg-pes" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+    <div class="bg-surface border border-line rounded-2xl p-5 mb-4">
+      <label for="seg-data" class="block text-sm font-semibold text-muted mb-1">Data</label>
+      <input autocomplete="off" id="seg-data" type="date" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 mb-4 focus:border-pink outline-none">
+      <label for="seg-pes" class="block text-sm font-semibold text-muted mb-1">Pes mitjà de la setmana (kg)</label>
+      <input autocomplete="off" id="seg-pes" type="number" step="0.1" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none">
     </div>
 
-    <div class="bg-white rounded-2xl shadow-md p-5 mb-4">
-      <label class="flex items-center gap-2 mb-3 cursor-pointer">
-        <input autocomplete="off" type="checkbox" id="seg-toggle-mesures" onchange="document.getElementById('seg-mesures').classList.toggle('hidden-screen', !this.checked)" class="w-5 h-5 accent-gym-pink">
-        <span class="font-bold text-gray-800">Afegir mesures d'avui (cada 15 dies)</span>
+    <div class="bg-surface border border-line rounded-2xl p-5 mb-4">
+      <label class="flex items-center gap-3 mb-3 cursor-pointer">
+        <input autocomplete="off" type="checkbox" id="seg-toggle-mesures" onchange="document.getElementById('seg-mesures').classList.toggle('hidden-screen', !this.checked)" class="w-5 h-5 accent-pink">
+        <span class="font-bold">Avui toquen mesures</span>
       </label>
       <div id="seg-mesures" class="hidden-screen grid grid-cols-2 gap-3">
-        <div>
-          <label for="seg-coll" class="block text-xs font-semibold text-gray-500 mb-1">Coll (cm)</label>
-          <input autocomplete="off" id="seg-coll" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
-        </div>
-        <div>
-          <label for="seg-pit" class="block text-xs font-semibold text-gray-500 mb-1">Pit (cm)</label>
-          <input autocomplete="off" id="seg-pit" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
-        </div>
-        <div>
-          <label for="seg-cintura" class="block text-xs font-semibold text-gray-500 mb-1">Cintura (cm)</label>
-          <input autocomplete="off" id="seg-cintura" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
-        </div>
-        <div>
-          <label for="seg-cadera" class="block text-xs font-semibold text-gray-500 mb-1">Cadera (cm)</label>
-          <input autocomplete="off" id="seg-cadera" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
-        </div>
-        <div>
-          <label for="seg-braç" class="block text-xs font-semibold text-gray-500 mb-1">Braç (cm)</label>
-          <input autocomplete="off" id="seg-braç" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
-        </div>
-        <div>
-          <label for="seg-cama" class="block text-xs font-semibold text-gray-500 mb-1">Cama (cm)</label>
-          <input autocomplete="off" id="seg-cama" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
-        </div>
+        <div><label for="seg-coll" class="block text-xs font-semibold text-muted mb-1">Coll (cm)</label><input autocomplete="off" id="seg-coll" type="number" step="0.1" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"></div>
+        <div><label for="seg-pit" class="block text-xs font-semibold text-muted mb-1">Pit (cm)</label><input autocomplete="off" id="seg-pit" type="number" step="0.1" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"></div>
+        <div><label for="seg-cintura" class="block text-xs font-semibold text-muted mb-1">Cintura (cm)</label><input autocomplete="off" id="seg-cintura" type="number" step="0.1" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"></div>
+        <div><label for="seg-cadera" class="block text-xs font-semibold text-muted mb-1">Cadera (cm)</label><input autocomplete="off" id="seg-cadera" type="number" step="0.1" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"></div>
+        <div><label for="seg-brac" class="block text-xs font-semibold text-muted mb-1">Braç (cm)</label><input autocomplete="off" id="seg-brac" type="number" step="0.1" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"></div>
+        <div><label for="seg-cama" class="block text-xs font-semibold text-muted mb-1">Cama (cm)</label><input autocomplete="off" id="seg-cama" type="number" step="0.1" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"></div>
       </div>
-      <p class="text-[11px] text-gray-400 mt-3">Coll i cintura (i cadera si escau) s'utilitzen per estimar el % de greix corporal (mètode Navy).</p>
+      <p class="text-[11px] text-muted mt-3">Coll, cintura i cadera serveixen per estimar el % de greix (mètode Navy).</p>
     </div>
 
-    <button onclick="desarSeguiment()" class="w-full bg-gym-mint text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:bg-emerald-600 transition-colors text-lg">
-      Desar seguiment
-    </button>
+    <button onclick="desarSeguiment()" class="w-full bg-mint text-ink font-bold py-4 rounded-xl hover:opacity-90 transition text-lg">Desar seguiment</button>
   </div>
 
-  <!-- PANTALLA: EVOLUCIÓ -->
+  <!-- EVOLUCIÓ -->
   <div id="screen-evolucio" class="w-full fade-in hidden-screen pb-24">
-    <h2 class="text-2xl font-display font-bold text-gym-berry mb-4 text-center mt-2">Evolució</h2>
-
-    <div class="bg-white rounded-2xl shadow-md p-4 mb-4">
-      <h3 class="font-bold text-gray-800 mb-2">Pes (kg)</h3>
-      <canvas id="graf-pes" height="180" role="img" aria-label="Gràfic d'evolució del pes"></canvas>
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-md p-4 mb-4">
-      <h3 class="font-bold text-gray-800 mb-2">% de greix estimat (Navy)</h3>
-      <canvas id="graf-greix" height="180" role="img" aria-label="Gràfic d'evolució del percentatge de greix corporal"></canvas>
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-md p-4 mb-4">
-      <h3 class="font-bold text-gray-800 mb-2">Mesures corporals (cm)</h3>
-      <canvas id="graf-mesures" height="200" role="img" aria-label="Gràfic d'evolució de les mesures corporals"></canvas>
-    </div>
-
-    <div class="bg-white rounded-2xl shadow-md p-4 mb-4">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="font-bold text-gray-800">Força (1RM estimat)</h3>
-        <label class="sr-only" for="select-exercici-forca">Tria l'exercici</label>
-        <select id="select-exercici-forca" onchange="renderGrafForca()" class="text-sm border border-gray-300 rounded-lg px-2 py-1 bg-white"></select>
+    <h2 class="text-2xl font-display font-bold text-pink mb-4 text-center mt-1">Evolució</h2>
+    <div class="bg-surface border border-line rounded-2xl p-4 mb-4"><h3 class="font-bold mb-2">Pes (kg)</h3><canvas id="graf-pes" height="180" role="img" aria-label="Evolució del pes"></canvas></div>
+    <div class="bg-surface border border-line rounded-2xl p-4 mb-4"><h3 class="font-bold mb-2">% de greix estimat</h3><canvas id="graf-greix" height="180" role="img" aria-label="Evolució del percentatge de greix"></canvas></div>
+    <div class="bg-surface border border-line rounded-2xl p-4 mb-4"><h3 class="font-bold mb-2">Mesures (cm)</h3><canvas id="graf-mesures" height="200" role="img" aria-label="Evolució de les mesures"></canvas></div>
+    <div class="bg-surface border border-line rounded-2xl p-4 mb-4">
+      <div class="flex justify-between items-center mb-2 gap-2">
+        <h3 class="font-bold">Força (1RM estimat)</h3>
+        <label class="sr-only" for="select-exercici-forca">Exercici</label>
+        <select id="select-exercici-forca" onchange="renderGrafForca()" class="text-sm bg-surface2 border border-line rounded-lg px-2 py-1.5 max-w-[55%]"></select>
       </div>
-      <canvas id="graf-forca" height="180" role="img" aria-label="Gràfic d'evolució de la força estimada"></canvas>
-      <p id="forca-buit" class="text-center text-sm text-gray-400 py-6 hidden-screen">Encara no hi ha prou dades d'entrenament per aquest exercici.</p>
+      <canvas id="graf-forca" height="180" role="img" aria-label="Evolució de la força estimada"></canvas>
+      <p id="forca-buit" class="text-center text-sm text-muted py-6 hidden-screen">Encara no hi ha prou dades per aquest exercici.</p>
     </div>
+  </div>
+
+  <!-- ADMIN: BASE D'EXERCICIS -->
+  <div id="screen-admin-exercicis" class="w-full fade-in hidden-screen pb-24">
+    <h2 class="text-2xl font-display font-bold text-pink mb-1 text-center mt-1">Base d'exercicis</h2>
+    <p class="text-center text-xs text-muted mb-4">El tipus determina què demanarà l'app en entrenar.</p>
+    <button onclick="afegirExercici()" class="w-full text-sm bg-surface2 text-pink font-bold px-3 py-2.5 rounded-xl hover:bg-line mb-3">+ Afegir exercici</button>
+    <div id="admin-exercicis-content" class="space-y-3"></div>
+    <button onclick="desarExercicis()" class="w-full mt-5 bg-mint text-ink font-bold py-4 rounded-xl hover:opacity-90 transition text-lg">Desar exercicis</button>
+  </div>
+
+  <!-- ADMIN: RUTINES -->
+  <div id="screen-admin-rutines" class="w-full fade-in hidden-screen pb-24">
+    <h2 class="text-2xl font-display font-bold text-pink mb-1 text-center mt-1">Editar rutines</h2>
+    <p class="text-center text-xs text-muted mb-4">Cada fila és un exercici dins d'una rutina.</p>
+    <button onclick="afegirFilaRutina()" class="w-full text-sm bg-surface2 text-pink font-bold px-3 py-2.5 rounded-xl hover:bg-line mb-3">+ Afegir exercici a una rutina</button>
+    <div id="admin-rutines-content" class="space-y-3"></div>
+    <button onclick="desarRutines()" class="w-full mt-5 bg-mint text-ink font-bold py-4 rounded-xl hover:opacity-90 transition text-lg">Desar rutines</button>
+  </div>
+
+  <!-- ADMIN: DADES PERSONALS -->
+  <div id="screen-admin-dades" class="w-full fade-in hidden-screen pb-24">
+    <h2 class="text-2xl font-display font-bold text-pink mb-1 text-center mt-1">Dades personals</h2>
+    <p class="text-center text-xs text-muted mb-4">Afecten directament el càlcul de calories i macros.</p>
+    <div class="bg-surface border border-line rounded-2xl p-5 space-y-4">
+      <div><label for="dp-nom" class="block text-sm font-semibold text-muted mb-1">Nom</label><input autocomplete="off" id="dp-nom" type="text" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label for="dp-naixement" class="block text-sm font-semibold text-muted mb-1">Naixement</label><input autocomplete="off" id="dp-naixement" type="date" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"></div>
+        <div><label for="dp-sexe" class="block text-sm font-semibold text-muted mb-1">Sexe</label><select id="dp-sexe" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"><option>Dona</option><option>Home</option></select></div>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div><label for="dp-alcada" class="block text-xs font-semibold text-muted mb-1">Alçada (cm)</label><input autocomplete="off" id="dp-alcada" type="number" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 focus:border-pink outline-none"></div>
+        <div><label for="dp-pes" class="block text-xs font-semibold text-muted mb-1">Pes (kg)</label><input autocomplete="off" id="dp-pes" type="number" step="0.1" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 focus:border-pink outline-none"></div>
+        <div><label for="dp-pes-obj" class="block text-xs font-semibold text-muted mb-1">Objectiu</label><input autocomplete="off" id="dp-pes-obj" type="number" step="0.1" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 focus:border-pink outline-none"></div>
+      </div>
+      <div><label for="dp-activitat" class="block text-sm font-semibold text-muted mb-1">Nivell d'activitat</label><select id="dp-activitat" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"><option>Sedentari</option><option>Lleuger</option><option>Moderat</option><option>Actiu</option><option>Molt actiu</option></select></div>
+      <div><label for="dp-objectiu" class="block text-sm font-semibold text-muted mb-1">Objectiu</label><select id="dp-objectiu" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"><option>Perdre greix</option><option>Guanyar múscul</option><option>Recomposició</option><option>Manteniment</option></select></div>
+      <div><label for="dp-pin" class="block text-sm font-semibold text-muted mb-1">PIN de la Gemma (deixa'l buit per no canviar-lo)</label><input autocomplete="off" id="dp-pin" type="text" inputmode="numeric" maxlength="4" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none text-center tracking-widest"></div>
+    </div>
+    <button onclick="desarDadesPersonals()" class="w-full mt-5 bg-mint text-ink font-bold py-4 rounded-xl hover:opacity-90 transition text-lg">Desar dades</button>
   </div>
 
 </main>
 
-<div id="toast" class="toast hidden bg-gray-900 text-white px-4 py-2.5 rounded-full text-sm shadow-lg fade-in" role="status" aria-live="polite"></div>
+<!-- MODAL D'OBSERVACIONS -->
+<div id="modal-obs" class="hidden-screen fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6" onclick="tancarObservacions(event)">
+  <div class="bg-surface border border-line rounded-2xl p-6 max-w-sm w-full" onclick="event.stopPropagation()">
+    <h3 id="modal-obs-titol" class="font-display font-bold text-pink text-lg mb-3"></h3>
+    <p id="modal-obs-text" class="text-sm text-txt whitespace-pre-line"></p>
+    <button onclick="tancarObservacions()" class="w-full mt-5 bg-surface2 text-txt font-bold py-2.5 rounded-xl hover:bg-line">Tancar</button>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden-screen bg-surface border border-line text-txt px-4 py-2.5 rounded-full text-sm" role="status" aria-live="polite"></div>
 
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbwOKKk0NWelUgemqTxGFchdmwD4i6kDC0ZsUPt9DiSb3RoYEONi_sVXZzoQzb8qkhfuIg/exec";
+  const CLAU_PIN = 'gymcream_pin';
+  const CLAU_ESBORRANY = 'gymcream_esborrany_entrenament';
+
   let appData = {};
   let moments = [];
+  let llistaExercicis = [];
+  let llistaRutines = [];
   let horaInici = null;
   let rutinaActual = null;
+  let grafics = {};
 
   window.onload = function () {
-    // Traiem el service worker per ara (causava que es quedés servint
-    // versions velles de la web des de la memòria cau). Desregistrem
-    // qualsevol versió que hi hagués abans i netegem les seves caches.
+    // Netegem qualsevol service worker antic (causava versions velles encallades)
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function (registrations) {
-        registrations.forEach(function (reg) { reg.unregister(); });
-      });
+      navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); });
     }
     if (window.caches) {
-      caches.keys().then(function (claus) {
-        claus.forEach(function (clau) { caches.delete(clau); });
-      });
+      caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); });
     }
-    const savedPin = localStorage.getItem('gymcream_pin') || '';
-    iniciarApp(savedPin);
+    iniciarApp(localStorage.getItem(CLAU_PIN) || '');
   };
 
-  /* ---------- Utilitats ---------- */
+  /* ================= UTILITATS ================= */
+  function pinActual() { return localStorage.getItem(CLAU_PIN) || ''; }
+  function esAdmin() { return appData.rol === 'admin'; }
+
   function mostrarToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
-    t.classList.remove('hidden');
-    setTimeout(function () { t.classList.add('hidden'); }, 2600);
+    t.classList.remove('hidden-screen');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () { t.classList.add('hidden-screen'); }, 2800);
   }
 
   function postData(accio, payload) {
-    return fetch(API_URL + '?accio=' + accio, {
-      method: 'POST',
-      body: JSON.stringify(payload)
+    return fetch(API_URL + '?accio=' + accio + '&pin=' + encodeURIComponent(pinActual()), {
+      method: 'POST', body: JSON.stringify(payload)
     }).then(function (r) { return r.json(); });
   }
 
@@ -392,15 +435,37 @@
     const d = new Date();
     return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
   }
-
   function dataAvui() {
-    return new Date().toISOString().split('T')[0];
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function escapar(text) {
+    return String(text === undefined || text === null ? '' : text)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  /** "1:30" → 90 segons. "90" → 90. */
+  function mmssASegons(valor) {
+    const text = String(valor || '').trim();
+    if (!text) return '';
+    if (text.indexOf(':') > -1) {
+      const parts = text.split(':');
+      const min = parseInt(parts[0], 10) || 0;
+      const seg = parseInt(parts[1], 10) || 0;
+      return min * 60 + seg;
+    }
+    return parseInt(text, 10) || '';
+  }
+  /** 90 → "1:30" */
+  function segonsAMmss(segons) {
+    const n = parseInt(segons, 10);
+    if (!n && n !== 0) return '';
+    return Math.floor(n / 60) + ':' + String(n % 60).padStart(2, '0');
   }
 
-  /* ---------- Sessió ---------- */
+  /* ================= SESSIÓ ================= */
   async function iniciarApp(pin) {
     mostrarPantalla('screen-loading');
-    document.getElementById('error-pin').classList.add('hidden');
+    document.getElementById('error-pin').classList.add('hidden-screen');
 
     try {
       const response = await fetch(API_URL + "?pin=" + encodeURIComponent(pin));
@@ -408,144 +473,157 @@
 
       if (data.estat === 'nou_usuari') {
         mostrarPantalla('screen-alta');
-      } else if (data.estat === 'demana_pin') {
+        return;
+      }
+      if (data.estat === 'demana_pin') {
         document.getElementById('greeting-name').innerText = "Hola " + data.nom + "!";
         mostrarPantalla('screen-login');
-        if (pin) document.getElementById('error-pin').classList.remove('hidden');
-        localStorage.removeItem('gymcream_pin');
-      } else if (data.estat === 'ok') {
+        if (pin) document.getElementById('error-pin').classList.remove('hidden-screen');
+        localStorage.removeItem(CLAU_PIN);
+        return;
+      }
+      if (data.estat === 'ok') {
         appData = data;
-        localStorage.setItem('gymcream_pin', pin);
-        document.getElementById('btn-menu').classList.remove('hidden');
+        localStorage.setItem(CLAU_PIN, pin);
+        llistaExercicis = data.llistaExercicis || [];
+        llistaRutines = data.llistaRutines || [];
+
+        document.getElementById('btn-menu').classList.remove('hidden-screen');
+        document.getElementById('menu-admin').classList.toggle('hidden-screen', !esAdmin());
+        document.getElementById('etiqueta-rol').classList.toggle('hidden-screen', !esAdmin());
+        document.getElementById('btn-editar-nutricio').classList.toggle('hidden-screen', !esAdmin());
+
         renderNutricio();
         renderRutines();
-        if (!comprovarEsborranyEntrenament()) {
-          mostrarPantalla('screen-nutricio');
-        }
+        if (!comprovarEsborranyEntrenament()) mostrarPantalla('screen-nutricio');
       }
     } catch (error) {
-      document.getElementById('loading-text').innerText = "Error de connexió.";
+      document.getElementById('loading-text').innerText = "Error de connexió. Comprova internet i torna-ho a provar.";
       console.error(error);
     }
   }
 
-  /**
-   * Igual que iniciarApp però SENSE mostrar la pantalla de càrrega.
-   * Fer-la servir després de desar dades, per refrescar appData sense
-   * que la persona vegi el cercle girant cada cop (només és un
-   * refresc en segon pla, la connexió ja funcionava bé).
-   */
+  /** Refresc en segon pla, sense pantalla de càrrega. */
   async function actualitzarDadesSilenciosament() {
-    const pin = localStorage.getItem('gymcream_pin');
+    const pin = pinActual();
     if (!pin) return;
     try {
       const response = await fetch(API_URL + "?pin=" + encodeURIComponent(pin));
       const data = await response.json();
-      if (data.estat === 'ok') appData = data;
-    } catch (error) {
-      console.error(error);
-    }
+      if (data.estat === 'ok') {
+        appData = data;
+        llistaExercicis = data.llistaExercicis || [];
+        llistaRutines = data.llistaRutines || [];
+      }
+    } catch (error) { console.error(error); }
   }
 
   function tancarSessio() {
-    localStorage.removeItem('gymcream_pin');
+    if (localStorage.getItem(CLAU_ESBORRANY) && !confirm('Tens un entrenament sense acabar. Si tanques sessió el perdràs. Continuar?')) return;
+    localStorage.removeItem(CLAU_PIN);
+    localStorage.removeItem(CLAU_ESBORRANY);
     window.location.reload();
   }
 
-  /* ---------- Alta ---------- */
+  /* ================= ALTA ================= */
   async function enviarAlta() {
-    const camps = ['alta-nom', 'alta-naixement', 'alta-sexe', 'alta-alcada', 'alta-pes', 'alta-pes-obj', 'alta-activitat', 'alta-objectiu', 'alta-pin'];
-    const valors = {};
+    const camps = ['alta-nom','alta-naixement','alta-sexe','alta-alcada','alta-pes','alta-pes-obj','alta-activitat','alta-objectiu','alta-pin'];
+    const v = {};
     let buit = false;
-    camps.forEach(function (id) {
-      const v = document.getElementById(id).value;
-      if (!v) buit = true;
-      valors[id] = v;
-    });
-    if (buit || valors['alta-pin'].length !== 4) {
-      document.getElementById('error-alta').classList.remove('hidden');
+    camps.forEach(function (id) { v[id] = document.getElementById(id).value; if (!v[id]) buit = true; });
+    if (buit || v['alta-pin'].length !== 4) {
+      document.getElementById('error-alta').classList.remove('hidden-screen');
       return;
     }
-    document.getElementById('error-alta').classList.add('hidden');
-
-    const payload = {
-      nom: valors['alta-nom'], dataNaixement: valors['alta-naixement'], sexe: valors['alta-sexe'],
-      alcada: valors['alta-alcada'], pesActual: valors['alta-pes'], pesObjectiu: valors['alta-pes-obj'],
-      factorActivitat: valors['alta-activitat'], objectiu: valors['alta-objectiu'], pin: valors['alta-pin']
-    };
-
+    document.getElementById('error-alta').classList.add('hidden-screen');
     mostrarPantalla('screen-loading');
-    await postData('guardarAlta', payload);
-    iniciarApp(valors['alta-pin']);
+    await postData('guardarAlta', {
+      nom: v['alta-nom'], dataNaixement: v['alta-naixement'], sexe: v['alta-sexe'],
+      alcada: v['alta-alcada'], pesActual: v['alta-pes'], pesObjectiu: v['alta-pes-obj'],
+      factorActivitat: v['alta-activitat'], objectiu: v['alta-objectiu'], pin: v['alta-pin']
+    });
+    iniciarApp(v['alta-pin']);
   }
 
-  /* ---------- Nutrició (pantalla d'inici) ---------- */
+  /* ================= NUTRICIÓ (vista) ================= */
   function renderNutricio() {
-    const data = appData.nutricio;
-    let html = "";
+    const data = appData.nutricio || {};
+    const contenidor = document.getElementById('nutricio-content');
 
-    if (!data || Object.keys(data).length === 0) {
-      document.getElementById('nutricio-content').innerHTML = `
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
-          <p class="text-gray-500 mb-2">Encara no has repartit la teva nutrició d'avui.</p>
-          <p class="text-xs text-gray-400">Prem "Ajustar la nutrició" per començar.</p>
-        </div>`;
+    if (Object.keys(data).length === 0) {
+      contenidor.innerHTML = `<div class="bg-surface border border-line rounded-2xl p-6 text-center">
+        <p class="text-muted text-sm">Encara no hi ha cap pla de nutrició definit.</p>
+      </div>`;
       return;
     }
 
-    let totalKcal = 0, totalP = 0, totalG = 0, totalC = 0;
+    let totalKcal = 0, totalP = 0, totalG = 0, totalC = 0, html = "";
     for (const moment in data) {
       totalKcal += Number(data[moment].kcal) || 0;
       totalP += Number(data[moment].proteines) || 0;
       totalG += Number(data[moment].greixos) || 0;
       totalC += Number(data[moment].carbs) || 0;
-      html += `
-      <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 mb-3">
-        <div class="flex justify-between items-center mb-1">
-          <h4 class="font-bold text-gym-pink">${moment}</h4>
-          <span class="text-sm font-bold text-gray-600">${data[moment].kcal} kcal</span>
+      html += `<div class="bg-surface border border-line rounded-2xl p-4 mb-3">
+        <div class="flex justify-between items-center mb-2">
+          <h4 class="font-bold text-pink">${escapar(moment)}</h4>
+          <span class="text-sm font-bold">${escapar(data[moment].kcal)} kcal</span>
         </div>
-        <div class="flex justify-between text-xs text-gray-500">
-          <span>P: ${data[moment].proteines}g</span><span>G: ${data[moment].greixos}g</span><span>C: ${data[moment].carbs}g</span>
+        <div class="flex gap-2 text-xs">
+          <span class="bg-surface2 text-sky px-2 py-1 rounded-lg flex-1 text-center">P ${escapar(data[moment].proteines)}g</span>
+          <span class="bg-surface2 text-amber px-2 py-1 rounded-lg flex-1 text-center">G ${escapar(data[moment].greixos)}g</span>
+          <span class="bg-surface2 text-mint px-2 py-1 rounded-lg flex-1 text-center">C ${escapar(data[moment].carbs)}g</span>
         </div>
-        ${data[moment].observacions ? `<p class="text-xs text-gray-400 mt-2 italic">🍽️ ${data[moment].observacions}</p>` : ''}
+        ${data[moment].observacions ? `<p class="text-xs text-muted mt-3 leading-relaxed">🍽️ ${escapar(data[moment].observacions)}</p>` : ''}
       </div>`;
     }
 
-    const totalHtml = `
-      <div class="bg-white rounded-2xl shadow-md p-5 mb-4 border-t-4 border-gym-pink">
-        <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Total Diari</h3>
-        <div class="grid grid-cols-4 gap-2 text-center">
-          <div class="bg-gym-pink-light p-2 rounded-lg"><span class="block text-[10px] text-gray-500 uppercase">Kcal</span><span class="font-bold text-gym-berry">${totalKcal}</span></div>
-          <div class="bg-blue-50 p-2 rounded-lg"><span class="block text-[10px] text-gray-500 uppercase">Prot</span><span class="font-bold text-blue-700">${totalP}g</span></div>
-          <div class="bg-yellow-50 p-2 rounded-lg"><span class="block text-[10px] text-gray-500 uppercase">Greix</span><span class="font-bold text-yellow-600">${totalG}g</span></div>
-          <div class="bg-green-50 p-2 rounded-lg"><span class="block text-[10px] text-gray-500 uppercase">Carbs</span><span class="font-bold text-green-700">${totalC}g</span></div>
-        </div>
-      </div>`;
-
-    document.getElementById('nutricio-content').innerHTML = totalHtml + html;
+    contenidor.innerHTML = `<div class="bg-surface border border-pink/40 rounded-2xl p-5 mb-4">
+      <h3 class="font-bold mb-3 text-sm uppercase tracking-wide text-muted">Total del dia</h3>
+      <div class="grid grid-cols-4 gap-2 text-center">
+        <div class="bg-surface2 p-2.5 rounded-xl"><span class="block text-[10px] text-muted uppercase">Kcal</span><span class="font-bold text-pink">${totalKcal}</span></div>
+        <div class="bg-surface2 p-2.5 rounded-xl"><span class="block text-[10px] text-muted uppercase">Prot</span><span class="font-bold text-sky">${totalP}g</span></div>
+        <div class="bg-surface2 p-2.5 rounded-xl"><span class="block text-[10px] text-muted uppercase">Greix</span><span class="font-bold text-amber">${totalG}g</span></div>
+        <div class="bg-surface2 p-2.5 rounded-xl"><span class="block text-[10px] text-muted uppercase">Carbs</span><span class="font-bold text-mint">${totalC}g</span></div>
+      </div>
+    </div>` + html;
   }
 
-  /* ---------- Calculadora de nutrició ---------- */
+  /* ================= CALCULADORA (admin) ================= */
   function obrirCalculadora() {
-    const m = appData.macros || {};
-    document.getElementById('calc-manteniment').innerText = 'Manteniment estimat: ' + (m.manteniment || '-') + ' kcal · Edat: ' + (m.edat || '-') + ' anys';
-    document.getElementById('calc-ritme-label').innerText = 'Ritme setmanal (g) — entre ' + m.rangRitmeG.min + ' i ' + m.rangRitmeG.max;
-    document.getElementById('calc-ritme').value = m.ritmeSetmanalG || 0;
-    document.getElementById('calc-ritme').min = (m.ritmeSetmanalG < 0 ? -m.rangRitmeG.max : m.rangRitmeG.min);
-    document.getElementById('calc-ritme').max = (m.ritmeSetmanalG < 0 ? -m.rangRitmeG.min : m.rangRitmeG.max);
-    document.getElementById('calc-kcal').value = m.kcalObjectiu || 0;
-    document.getElementById('calc-proteina').value = m.macros ? m.macros.proteina : 0;
-    document.getElementById('calc-greix').value = m.macros ? m.macros.greix : 0;
-    document.getElementById('calc-carbs').value = m.macros ? m.macros.carbohidrats : 0;
+    if (!esAdmin()) { mostrarToast('Només l\'administrador pot editar el pla.'); return; }
+    const m = appData.macros;
+    if (!m) { mostrarToast('Primer cal donar d\'alta les dades personals.'); return; }
+
+    document.getElementById('calc-pes-usat').innerText = m.pesUsat + ' kg';
+    document.getElementById('calc-bmr').innerText = m.bmr + ' kcal';
+    document.getElementById('calc-manteniment').innerText = m.manteniment + ' kcal';
+
+    const objectiu = appData.dadesPersonals.objectiu;
+    let ajuda;
+    if (objectiu === 'Perdre greix') {
+      ajuda = 'Negatiu = perdre pes. Recomanat entre −200 i −400 g/setmana per no perdre múscul.';
+    } else if (objectiu === 'Guanyar múscul') {
+      ajuda = 'Positiu = guanyar pes. Màxim +100 g/setmana per minimitzar el greix guanyat.';
+    } else {
+      ajuda = 'Prop de 0 = mantenir el pes mentre milloren la força i la composició corporal.';
+    }
+    document.getElementById('calc-ritme-ajuda').innerText = ajuda + ' Cada gram de canvi setmanal ajusta les calories del dia.';
+
+    const ritme = document.getElementById('calc-ritme');
+    ritme.min = m.rangRitmeG.min;
+    ritme.max = m.rangRitmeG.max;
+    ritme.value = m.ritmeSetmanalG;
+
+    document.getElementById('calc-kcal').value = m.kcalObjectiu;
+    document.getElementById('calc-proteina').value = m.macros.proteina;
+    document.getElementById('calc-greix').value = m.macros.greix;
+    document.getElementById('calc-carbs').value = m.macros.carbohidrats;
 
     moments = Object.keys(appData.nutricio || {}).map(function (nom) {
       const d = appData.nutricio[nom];
       return { nom: nom, proteina: Number(d.proteines) || 0, greix: Number(d.greixos) || 0, carbs: Number(d.carbs) || 0, observacions: d.observacions || '' };
     });
-    if (moments.length === 0) {
-      moments = [{ nom: 'Matí', proteina: 0, greix: 0, carbs: 0, observacions: '' }];
-    }
+    if (moments.length === 0) moments = [{ nom: 'Esmorzar', proteina: 0, greix: 0, carbs: 0, observacions: '' }];
 
     renderMoments();
     actualitzarResumMoments();
@@ -556,12 +634,9 @@
     const dp = appData.dadesPersonals;
     const pes = Number(dp.pesReferencia) > 0 ? Number(dp.pesReferencia) : Number(dp.pesActual);
     const ritme = Number(document.getElementById('calc-ritme').value) || 0;
-    const kcalManteniment = appData.macros.manteniment;
-    const ajust = Math.round((ritme * 7700 / 1000) / 7);
-    const kcalObjectiu = kcalManteniment + ajust;
+    const kcalObjectiu = appData.macros.manteniment + Math.round((ritme * 7700 / 1000) / 7);
 
-    const gProteinaPerKg = (dp.objectiu === 'Guanyar múscul') ? 1.8 : 2.0;
-    const proteina = Math.round(pes * gProteinaPerKg);
+    const proteina = Math.round(pes * (dp.objectiu === 'Guanyar múscul' ? 1.8 : 2.0));
     const greix = Math.round(Math.max(pes * 0.8, kcalObjectiu * 0.25 / 9));
     const carbs = Math.max(0, Math.round((kcalObjectiu - proteina * 4 - greix * 9) / 4));
 
@@ -574,321 +649,318 @@
 
   function afegirMoment() {
     moments.push({ nom: 'Nou moment', proteina: 0, greix: 0, carbs: 0, observacions: '' });
-    renderMoments();
-    actualitzarResumMoments();
+    renderMoments(); actualitzarResumMoments();
   }
-
-  function eliminarMoment(index) {
-    moments.splice(index, 1);
-    renderMoments();
-    actualitzarResumMoments();
+  function eliminarMoment(i) {
+    moments.splice(i, 1); renderMoments(); actualitzarResumMoments();
   }
+  function calcKcal(m) { return Math.round(m.proteina * 4 + m.greix * 9 + m.carbs * 4); }
 
   function renderMoments() {
-    let html = "";
-    moments.forEach(function (m, i) {
-      html += `
-      <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-        <div class="flex justify-between items-center mb-2 gap-2">
+    document.getElementById('moments-content').innerHTML = moments.map(function (m, i) {
+      return `<div class="bg-surface2 rounded-xl p-4 border border-line">
+        <div class="flex justify-between items-center mb-3 gap-2">
           <label class="sr-only" for="mom-nom-${i}">Nom del moment</label>
-          <input autocomplete="off" id="mom-nom-${i}" type="text" value="${m.nom}" oninput="moments[${i}].nom=this.value" class="font-bold text-gym-pink border-b border-transparent focus:border-gym-pink outline-none w-2/3 bg-transparent">
-          <button onclick="eliminarMoment(${i})" aria-label="Eliminar moment ${m.nom}" class="text-gray-400 hover:text-red-500 w-8 h-8 flex items-center justify-center rounded-lg">✕</button>
+          <input autocomplete="off" id="mom-nom-${i}" type="text" value="${escapar(m.nom)}" oninput="moments[${i}].nom=this.value" class="font-bold text-pink bg-transparent border-b border-line focus:border-pink outline-none flex-grow py-1">
+          <button onclick="eliminarMoment(${i})" aria-label="Eliminar moment" class="text-muted hover:text-red-400 w-9 h-9 rounded-lg shrink-0">✕</button>
         </div>
-        <div class="grid grid-cols-3 gap-2">
-          <div>
-            <label class="sr-only" for="mom-p-${i}">Proteïna grams</label>
-            <input autocomplete="off" id="mom-p-${i}" type="number" value="${m.proteina}" oninput="moments[${i}].proteina=Number(this.value)||0; actualitzarResumMoments()" class="w-full border border-blue-100 bg-blue-50 rounded-lg px-2 py-1.5 text-center text-blue-700 font-semibold outline-none focus:border-blue-400">
-          </div>
-          <div>
-            <label class="sr-only" for="mom-g-${i}">Greix grams</label>
-            <input autocomplete="off" id="mom-g-${i}" type="number" value="${m.greix}" oninput="moments[${i}].greix=Number(this.value)||0; actualitzarResumMoments()" class="w-full border border-yellow-100 bg-yellow-50 rounded-lg px-2 py-1.5 text-center text-yellow-700 font-semibold outline-none focus:border-yellow-400">
-          </div>
-          <div>
-            <label class="sr-only" for="mom-c-${i}">Carbohidrats grams</label>
-            <input autocomplete="off" id="mom-c-${i}" type="number" value="${m.carbs}" oninput="moments[${i}].carbs=Number(this.value)||0; actualitzarResumMoments()" class="w-full border border-green-100 bg-green-50 rounded-lg px-2 py-1.5 text-center text-green-700 font-semibold outline-none focus:border-green-400">
-          </div>
+        <div class="grid grid-cols-3 gap-2 mb-2">
+          <div><label class="block text-[10px] text-sky mb-1" for="mom-p-${i}">Proteïna</label><input autocomplete="off" id="mom-p-${i}" type="number" value="${m.proteina}" oninput="moments[${i}].proteina=Number(this.value)||0; actualitzarResumMoments()" class="w-full bg-ink border border-line rounded-lg px-2 py-2 text-center font-semibold outline-none focus:border-sky"></div>
+          <div><label class="block text-[10px] text-amber mb-1" for="mom-g-${i}">Greix</label><input autocomplete="off" id="mom-g-${i}" type="number" value="${m.greix}" oninput="moments[${i}].greix=Number(this.value)||0; actualitzarResumMoments()" class="w-full bg-ink border border-line rounded-lg px-2 py-2 text-center font-semibold outline-none focus:border-amber"></div>
+          <div><label class="block text-[10px] text-mint mb-1" for="mom-c-${i}">Carbs</label><input autocomplete="off" id="mom-c-${i}" type="number" value="${m.carbs}" oninput="moments[${i}].carbs=Number(this.value)||0; actualitzarResumMoments()" class="w-full bg-ink border border-line rounded-lg px-2 py-2 text-center font-semibold outline-none focus:border-mint"></div>
         </div>
-        <p class="text-right text-xs text-gray-400 mt-1 mb-2">${calcKcal(m)} kcal</p>
-        <label class="sr-only" for="mom-obs-${i}">Exemple de menjar per ${m.nom}</label>
-        <input id="mom-obs-${i}" type="text" value="${m.observacions || ''}" placeholder="Exemple de menjar (ex: iogurt amb civada i nous)" oninput="moments[${i}].observacions=this.value" class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-600 outline-none focus:border-gym-pink bg-gray-50">
+        <p class="text-right text-xs text-muted mb-2">${calcKcal(m)} kcal</p>
+        <label class="sr-only" for="mom-obs-${i}">Exemple de menjar</label>
+        <textarea id="mom-obs-${i}" rows="2" placeholder="Exemple de menjar (ex: 200g iogurt grec + 40g civada + 10 ametlles)" oninput="moments[${i}].observacions=this.value" class="w-full bg-ink border border-line rounded-lg px-2 py-2 text-sm text-muted outline-none focus:border-pink resize-none">${escapar(m.observacions)}</textarea>
       </div>`;
-    });
-    document.getElementById('moments-content').innerHTML = html;
-  }
-
-  function calcKcal(m) {
-    return Math.round(m.proteina * 4 + m.greix * 9 + m.carbs * 4);
+    }).join('');
   }
 
   function actualitzarResumMoments() {
-    const totalObjectiu = Number(document.getElementById('calc-kcal').value) || 0;
+    const total = Number(document.getElementById('calc-kcal').value) || 0;
     const assignat = moments.reduce(function (acc, m) { return acc + calcKcal(m); }, 0);
-    const pct = totalObjectiu > 0 ? Math.min(150, Math.round((assignat / totalObjectiu) * 100)) : 0;
+    const resta = total - assignat;
+    const pct = total > 0 ? Math.round((assignat / total) * 100) : 0;
 
-    document.getElementById('calc-kcal-assignat').innerText = assignat;
-    document.getElementById('calc-kcal-total').innerText = totalObjectiu;
+    document.getElementById('calc-kcal-assignat').innerText = assignat + ' kcal';
+    document.getElementById('calc-kcal-total').innerText = total + ' kcal';
+    const elResta = document.getElementById('calc-kcal-resta');
+    elResta.innerText = resta + ' kcal';
+    elResta.className = 'font-semibold ' + (Math.abs(resta) <= 25 ? 'text-mint' : (resta < 0 ? 'text-red-400' : 'text-pink'));
     document.getElementById('anell-pct').innerText = pct + '%';
-    document.getElementById('anell-kcal').style.setProperty('--pct', Math.min(100, pct));
+    document.getElementById('anell-kcal').style.setProperty('--pct', Math.min(100, Math.max(0, pct)));
   }
 
   async function desarNutricio() {
-    const payload = {
+    const res = await postData('guardarNutricio', {
       moments: moments.map(function (m) {
         return { nom: m.nom, kcal: calcKcal(m), proteines: m.proteina, greixos: m.greix, carbs: m.carbs, observacions: m.observacions };
       })
-    };
-    const res = await postData('guardarNutricio', payload);
+    });
     if (res.status === 'success') {
       appData.nutricio = {};
-      payload.moments.forEach(function (m) { appData.nutricio[m.nom] = m; });
+      moments.forEach(function (m) {
+        appData.nutricio[m.nom] = { kcal: calcKcal(m), proteines: m.proteina, greixos: m.greix, carbs: m.carbs, observacions: m.observacions };
+      });
       renderNutricio();
-      mostrarToast('Nutrició desada! 🍽️');
+      mostrarToast('Pla de nutrició desat 🍽️');
       mostrarPantalla('screen-nutricio');
     } else {
-      mostrarToast('Hi ha hagut un error desant.');
+      mostrarToast(res.missatge || 'Error desant.');
     }
   }
 
-  /* ---------- Rutines ---------- */
+  /* ================= RUTINES (selecció) ================= */
   function renderRutines() {
-    const rutines = appData.rutines;
-    let html = "";
-    if (!rutines || Object.keys(rutines).length === 0) {
-      html = `<p class="text-center text-gray-500 mt-10">No hi ha rutines a la pestanya 'Rutines'.</p>`;
-    } else {
-      for (const nom in rutines) {
-        html += `
-        <button onclick="carregarEntrenament('${nom}')" class="w-full bg-white rounded-xl shadow-sm p-5 border-l-4 border-gym-pink hover:shadow-md transition-shadow text-left flex justify-between items-center">
-          <span class="font-bold text-gray-800 text-lg">${nom}</span>
-          <span class="text-xs bg-gym-pink-light text-gym-berry px-2 py-1 rounded-full">${rutines[nom].length} ex.</span>
-        </button>`;
-      }
-    }
-    document.getElementById('rutines-content').innerHTML = html;
+    const rutines = appData.rutines || {};
+    const noms = Object.keys(rutines);
+    document.getElementById('rutines-content').innerHTML = noms.length === 0
+      ? `<p class="text-center text-muted mt-10 text-sm">Encara no hi ha cap rutina definida.</p>`
+      : noms.map(function (nom) {
+          return `<button onclick="carregarEntrenament('${escapar(nom).replace(/'/g, "\\'")}')" class="w-full bg-surface border border-line hover:border-pink rounded-2xl p-5 transition-colors text-left flex justify-between items-center">
+            <span class="font-bold text-lg">${escapar(nom)}</span>
+            <span class="text-xs bg-surface2 text-pink px-2.5 py-1 rounded-full">${rutines[nom].length} ex.</span>
+          </button>`;
+        }).join('');
   }
 
+  /* ================= ENTRENAMENT ================= */
   function carregarEntrenament(nomRutina, esborrany) {
     rutinaActual = nomRutina;
     horaInici = (esborrany && esborrany.horaInici) || horaActual();
     document.getElementById('titol-entrenament').innerText = nomRutina;
-    const exercicis = appData.rutines[nomRutina];
-    let html = "";
+    document.getElementById('rellotge-entrenament').innerText = 'Inici ' + horaInici;
 
-    exercicis.forEach(function (ex, exIndex) {
-      const infoEx = appData.exercicis[ex.idExercici] || {};
-      const esTemps = infoEx.tipus === 'Temps';
-      const ultimes = (appData.ultimesDades[nomRutina] && appData.ultimesDades[nomRutina][ex.idExercici]) || [];
+    const exercicis = appData.rutines[nomRutina] || [];
+    const ultimes = (appData.ultimesDades || {})[nomRutina] || {};
 
-      html += `
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden" data-exercici="${ex.exercici}" data-id-exercici="${ex.idExercici}">
-        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center gap-3">
-          <div class="flex items-center gap-3 min-w-0">
-            ${infoEx.imatge ? `<img src="${infoEx.imatge}" alt="" class="w-11 h-11 rounded-lg object-cover shrink-0 border border-gray-200">` : ''}
-            <h3 class="font-bold text-gym-berry text-lg truncate">${ex.exercici}${infoEx.video ? ` · <a href="${infoEx.video}" target="_blank" rel="noopener" class="text-sm font-bold text-red-500 underline whitespace-nowrap">Vídeo</a>` : ''}</h3>
-          </div>
-          ${infoEx.observacions ? `<button aria-label="Veure observacions de ${ex.exercici}" onclick="mostrarObservacions('${ex.exercici.replace(/'/g, "\\'")}', '${(infoEx.observacions || '').replace(/'/g, "\\'")}')" class="text-sm bg-gray-200 text-gray-700 w-9 h-9 rounded-lg font-bold shrink-0">+</button>` : ''}
-        </div>
-        <div class="p-4 space-y-3">
-          <div class="flex justify-between text-xs text-gray-500 mb-2 px-1">
-            <span class="w-10">Sèrie</span>
-            <span class="w-16 text-center">${esTemps ? 'Min:Seg' : 'Reps'}</span>
-            <span class="w-16 text-center">Kg</span>
-            <span class="w-12 text-center">@ RPE</span>
-            <span class="w-11"></span>
-          </div>`;
+    document.getElementById('exercicis-content').innerHTML = exercicis.map(function (ex, exIndex) {
+      const infoEx = (appData.exercicis || {})[ex.idExercici] || {};
+      const tipus = infoEx.tipus || 'Pes+Reps';
+      const esTemps = tipus === 'Temps';
+      const senseKg = (tipus === 'Reps sense pes') || esTemps;
+      const refSeries = ultimes[ex.idExercici] || [];
 
-      let numSerie = 1;
       const totalSeries = (parseInt(ex.seriesEscalfament) || 0) + (parseInt(ex.seriesEfectives) || 0);
+      let numEfectiva = 1;
+      let files = "";
 
       for (let i = 0; i < totalSeries; i++) {
         const esEscalfament = i < (parseInt(ex.seriesEscalfament) || 0);
-        const color = esEscalfament ? "bg-orange-50 text-orange-800" : "bg-gray-100 text-gray-800";
-        const numeroReal = esEscalfament ? i + 1 : numSerie++;
-        const etiqueta = esEscalfament ? "Esc" : numeroReal;
-        const ref = ultimes[i] || {};
-        const refText = ref.reps || ref.temps ? `${ref.reps || ref.temps}${ref.kg ? ' · ' + ref.kg + 'kg' : ''}` : '';
+        const etiqueta = esEscalfament ? 'Esc' : numEfectiva++;
+        const colorEtiqueta = esEscalfament ? 'bg-amber/20 text-amber' : 'bg-surface2 text-txt';
+        const ref = refSeries[i] || {};
+        const refValor = esTemps ? segonsAMmss(ref.temps) : ref.reps;
+        const refText = refValor ? (refValor + (ref.kg ? ' × ' + ref.kg + 'kg' : '') + (ref.rpe ? ' @' + ref.rpe : '')) : '';
+        const objectiuDefecte = esTemps ? segonsAMmss(mmssASegons(ex.objectiu)) : (ex.objectiu || '');
 
-        html += `
-        <div class="flex flex-col gap-1" data-fila-serie data-tipus="${esEscalfament ? 'Escalfament' : 'Efectiva'}" data-numero="${etiqueta}">
-          <div class="flex justify-between items-center gap-2">
-            <div class="${color} w-10 h-10 flex items-center justify-center rounded-lg font-bold text-sm shrink-0">${etiqueta}</div>
-            <label class="sr-only" for="reps-${exIndex}-${i}">${esTemps ? 'Temps' : 'Repeticions'} sèrie ${etiqueta} de ${ex.exercici}</label>
-            <input autocomplete="off" id="reps-${exIndex}-${i}" data-camp="repsTemps" data-defecte="${ex.objectiu || ''}" type="text" inputmode="decimal" placeholder="${ex.objectiu || ''}" class="w-16 h-11 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
-            <label class="sr-only" for="kg-${exIndex}-${i}">Kg sèrie ${etiqueta} de ${ex.exercici}</label>
-            <input autocomplete="off" id="kg-${exIndex}-${i}" data-camp="kg" data-defecte="${ex.kgObjectiu || ''}" type="number" step="0.5" placeholder="${ex.kgObjectiu || 'Kg'}" class="w-16 h-11 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
-            <label class="sr-only" for="rpe-${exIndex}-${i}">RPE sèrie ${etiqueta} de ${ex.exercici}</label>
-            <input autocomplete="off" id="rpe-${exIndex}-${i}" data-camp="rpe" data-defecte="${ex.rpe || ''}" type="number" step="0.5" placeholder="${ex.rpe || ''}" class="w-12 h-11 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
-            <button type="button" aria-label="Validar sèrie ${etiqueta} de ${ex.exercici}" onclick="toggleValidarSerie(this)" class="w-11 h-11 bg-gray-200 hover:bg-gym-mint hover:text-white rounded-lg flex items-center justify-center transition-colors shrink-0">✓</button>
+        files += `<div class="rounded-xl bg-ink/40 p-2" data-fila-serie data-tipus="${esEscalfament ? 'Escalfament' : 'Efectiva'}" data-numero="${etiqueta}">
+          <div class="flex items-center gap-2">
+            <div class="${colorEtiqueta} w-9 h-10 flex items-center justify-center rounded-lg font-bold text-xs shrink-0">${etiqueta}</div>
+            <div class="flex-1">
+              <label class="sr-only" for="v-${exIndex}-${i}">${esTemps ? 'Temps' : 'Repeticions'} sèrie ${etiqueta}</label>
+              <input autocomplete="off" id="v-${exIndex}-${i}" data-camp="repsTemps" data-defecte="${escapar(objectiuDefecte)}" type="text" inputmode="${esTemps ? 'text' : 'numeric'}" placeholder="${escapar(objectiuDefecte)}" class="w-full h-10 bg-surface2 border border-line rounded-lg text-center font-bold outline-none focus:border-pink">
+            </div>
+            ${senseKg ? '' : `<div class="flex-1">
+              <label class="sr-only" for="kg-${exIndex}-${i}">Kg sèrie ${etiqueta}</label>
+              <input autocomplete="off" id="kg-${exIndex}-${i}" data-camp="kg" data-defecte="${escapar(ex.kgObjectiu || '')}" type="number" step="0.5" placeholder="${escapar(ex.kgObjectiu || 'kg')}" class="w-full h-10 bg-surface2 border border-line rounded-lg text-center font-bold outline-none focus:border-pink">
+            </div>`}
+            <div class="w-14">
+              <label class="sr-only" for="rpe-${exIndex}-${i}">RPE sèrie ${etiqueta}</label>
+              <input autocomplete="off" id="rpe-${exIndex}-${i}" data-camp="rpe" data-defecte="${escapar(ex.rpe || '')}" type="number" step="0.5" placeholder="${escapar(ex.rpe || '@')}" class="w-full h-10 bg-surface2 border border-line rounded-lg text-center font-bold outline-none focus:border-pink">
+            </div>
+            <button type="button" aria-label="Validar sèrie ${etiqueta}" onclick="toggleValidarSerie(this)" class="w-11 h-10 bg-surface2 hover:bg-mint hover:text-ink rounded-lg flex items-center justify-center shrink-0 transition-colors">✓</button>
           </div>
-          ${refText ? `<p class="text-[11px] text-gray-400 ml-12">Última vegada: ${refText}${ref.rpe ? ' · @' + ref.rpe : ''}</p>` : ''}
+          ${refText ? `<p class="text-[11px] text-muted mt-1.5 ml-11">Últim cop: ${escapar(refText)}</p>` : ''}
         </div>`;
       }
 
-      html += `</div></div>`;
-    });
+      return `<div class="bg-surface border border-line rounded-2xl overflow-hidden" data-exercici="${escapar(ex.exercici)}" data-id-exercici="${escapar(ex.idExercici)}" data-tipus-exercici="${escapar(tipus)}">
+        <div class="bg-surface2 px-4 py-3 border-b border-line flex justify-between items-center gap-2">
+          <div class="flex items-center gap-3 min-w-0">
+            ${infoEx.imatge ? `<img src="${escapar(infoEx.imatge)}" alt="" class="w-11 h-11 rounded-lg object-cover shrink-0 border border-line">` : ''}
+            <div class="min-w-0">
+              <h3 class="font-bold text-pink truncate">${escapar(ex.exercici)}</h3>
+              <p class="text-[11px] text-muted">${escapar(tipus)}${infoEx.video ? ` · <a href="${escapar(infoEx.video)}" target="_blank" rel="noopener" class="text-pinksoft underline">Vídeo</a>` : ''}</p>
+            </div>
+          </div>
+          ${infoEx.observacions ? `<button aria-label="Observacions de ${escapar(ex.exercici)}" onclick="mostrarObservacions(${exIndex})" data-obs="${escapar(infoEx.observacions)}" class="bg-ink text-txt w-9 h-9 rounded-lg font-bold shrink-0 hover:bg-line">+</button>` : ''}
+        </div>
+        <div class="p-3 space-y-2">
+          <div class="flex items-center gap-2 text-[10px] text-muted uppercase tracking-wide px-1">
+            <span class="w-9 text-center">Sèrie</span>
+            <span class="flex-1 text-center">${esTemps ? 'Min:Seg' : 'Reps'}</span>
+            ${senseKg ? '' : '<span class="flex-1 text-center">Kg</span>'}
+            <span class="w-14 text-center">RPE</span>
+            <span class="w-11"></span>
+          </div>
+          ${files}
+        </div>
+      </div>`;
+    }).join('');
 
-    document.getElementById('exercicis-content').innerHTML = html;
-    if (esborrany) aplicarEsborranyEntrenament_(esborrany);
+    if (esborrany) aplicarEsborrany_(esborrany);
     mostrarPantalla('screen-entrenament');
   }
 
-  /* ---------- Autodesat de l'entrenament en curs (per no perdre dades) ---------- */
-  const CLAU_ESBORRANY = 'gymcream_esborrany_entrenament';
-  let timerEsborrany = null;
-
-  function autodesarEsborranyDebounced() {
-    clearTimeout(timerEsborrany);
-    timerEsborrany = setTimeout(desarEsborranyEntrenament, 400);
+  function mostrarObservacions(exIndex) {
+    const bloc = document.querySelectorAll('#exercicis-content > div[data-exercici]')[exIndex];
+    const btn = bloc.querySelector('[data-obs]');
+    document.getElementById('modal-obs-titol').innerText = bloc.dataset.exercici;
+    document.getElementById('modal-obs-text').innerText = btn ? btn.dataset.obs : '';
+    document.getElementById('modal-obs').classList.remove('hidden-screen');
   }
-  document.getElementById('exercicis-content').addEventListener('input', autodesarEsborranyDebounced);
+  function tancarObservacions(event) {
+    if (event && event.target !== event.currentTarget) return;
+    document.getElementById('modal-obs').classList.add('hidden-screen');
+  }
 
-  function desarEsborranyEntrenament() {
+  function toggleValidarSerie(btn) {
+    const fila = btn.closest('[data-fila-serie]');
+    const validat = fila.dataset.validat === 'true';
+    fila.querySelectorAll('input').forEach(function (inp) {
+      // Si es valida i el camp és buit, hi deixem l'objectiu previst
+      if (!validat && !inp.value && inp.dataset.defecte) inp.value = inp.dataset.defecte;
+      inp.disabled = !validat;
+    });
+    btn.classList.toggle('bg-mint', !validat);
+    btn.classList.toggle('text-ink', !validat);
+    btn.classList.toggle('bg-surface2', validat);
+    fila.classList.toggle('opacity-60', !validat);
+    fila.dataset.validat = validat ? 'false' : 'true';
+    desarEsborrany();
+  }
+
+  /* -------- Autodesat local (no perdre res si es refresca) -------- */
+  let timerEsborrany = null;
+  document.getElementById('exercicis-content').addEventListener('input', function () {
+    clearTimeout(timerEsborrany);
+    timerEsborrany = setTimeout(desarEsborrany, 400);
+  });
+
+  function recorrerSeries(callback) {
+    document.querySelectorAll('#exercicis-content > div[data-exercici]').forEach(function (bloc) {
+      bloc.querySelectorAll('[data-fila-serie]').forEach(function (fila, i) { callback(bloc, fila, i); });
+    });
+  }
+
+  function desarEsborrany() {
     if (!rutinaActual) return;
     const series = [];
-    document.querySelectorAll('#exercicis-content > div[data-exercici]').forEach(function (bloc) {
-      bloc.querySelectorAll('[data-fila-serie]').forEach(function (fila) {
-        series.push({
-          exercici: bloc.dataset.exercici, idExercici: bloc.dataset.idExercici,
-          tipusSerie: fila.dataset.tipus, numeroSerie: fila.dataset.numero,
-          validat: fila.dataset.validat === 'true',
-          reps: fila.querySelector('[data-camp="repsTemps"]').value,
-          kg: fila.querySelector('[data-camp="kg"]').value,
-          rpe: fila.querySelector('[data-camp="rpe"]').value
-        });
+    recorrerSeries(function (bloc, fila) {
+      const kgInput = fila.querySelector('[data-camp="kg"]');
+      series.push({
+        exercici: bloc.dataset.exercici, idExercici: bloc.dataset.idExercici,
+        tipusSerie: fila.dataset.tipus, numeroSerie: fila.dataset.numero,
+        validat: fila.dataset.validat === 'true',
+        valor: fila.querySelector('[data-camp="repsTemps"]').value,
+        kg: kgInput ? kgInput.value : '',
+        rpe: fila.querySelector('[data-camp="rpe"]').value
       });
     });
     localStorage.setItem(CLAU_ESBORRANY, JSON.stringify({ nomRutina: rutinaActual, horaInici: horaInici, series: series }));
   }
 
-  /** Hi ha alguna dada realment introduïda a l'esborrany? */
-  function esborranyTeDades_(esborrany) {
-    return (esborrany.series || []).some(function (s) {
-      return s.reps || s.kg || s.rpe || s.validat;
-    });
+  function esborrarEsborrany() { localStorage.removeItem(CLAU_ESBORRANY); }
+
+  function esborranyTeDades_(e) {
+    return (e.series || []).some(function (s) { return s.valor || s.kg || s.rpe || s.validat; });
   }
 
-  function esborrarEsborranyEntrenament() {
-    localStorage.removeItem(CLAU_ESBORRANY);
-  }
-
-  /** Retorna true si s'ha reprès un entrenament pendent (i per tant ja s'ha canviat de pantalla). */
   function comprovarEsborranyEntrenament() {
     const raw = localStorage.getItem(CLAU_ESBORRANY);
     if (!raw) return false;
     let esborrany;
-    try { esborrany = JSON.parse(raw); } catch (e) { esborrarEsborranyEntrenament(); return false; }
-    if (!esborrany || !esborrany.nomRutina || !appData.rutines || !appData.rutines[esborrany.nomRutina] || !esborranyTeDades_(esborrany)) {
-      esborrarEsborranyEntrenament();
-      return false;
+    try { esborrany = JSON.parse(raw); } catch (e) { esborrarEsborrany(); return false; }
+    if (!esborrany || !esborrany.nomRutina || !(appData.rutines || {})[esborrany.nomRutina] || !esborranyTeDades_(esborrany)) {
+      esborrarEsborrany(); return false;
     }
-    const continuar = confirm('Tens un entrenament de "' + esborrany.nomRutina + '" sense acabar (iniciat a les ' + esborrany.horaInici + '). Vols continuar-lo on ho vas deixar?');
-    if (!continuar) { esborrarEsborranyEntrenament(); return false; }
+    if (!confirm('Tens un entrenament de "' + esborrany.nomRutina + '" sense acabar (iniciat a les ' + esborrany.horaInici + '). Vols continuar-lo?')) {
+      esborrarEsborrany(); return false;
+    }
     carregarEntrenament(esborrany.nomRutina, esborrany);
     return true;
   }
 
-  function aplicarEsborranyEntrenament_(esborrany) {
-    const guardadesPerBloc = {};
-    esborrany.series.forEach(function (s) {
+  function aplicarEsborrany_(esborrany) {
+    const perBloc = {};
+    (esborrany.series || []).forEach(function (s) {
       const clau = s.exercici + '|' + s.idExercici;
-      if (!guardadesPerBloc[clau]) guardadesPerBloc[clau] = [];
-      guardadesPerBloc[clau].push(s);
+      if (!perBloc[clau]) perBloc[clau] = [];
+      perBloc[clau].push(s);
     });
-    document.querySelectorAll('#exercicis-content > div[data-exercici]').forEach(function (bloc) {
-      const clau = bloc.dataset.exercici + '|' + bloc.dataset.idExercici;
-      const guardades = guardadesPerBloc[clau] || [];
-      const files = bloc.querySelectorAll('[data-fila-serie]');
-      files.forEach(function (fila, i) {
-        const g = guardades[i];
-        if (!g) return;
-        fila.querySelector('[data-camp="repsTemps"]').value = g.reps || '';
-        fila.querySelector('[data-camp="kg"]').value = g.kg || '';
-        fila.querySelector('[data-camp="rpe"]').value = g.rpe || '';
-        if (g.validat) {
-          const btn = fila.querySelector('button[aria-label^="Validar"]');
-          if (btn) toggleValidarSerie(btn);
-        }
-      });
+    recorrerSeries(function (bloc, fila, i) {
+      const guardades = perBloc[bloc.dataset.exercici + '|' + bloc.dataset.idExercici] || [];
+      const g = guardades[i];
+      if (!g) return;
+      fila.querySelector('[data-camp="repsTemps"]').value = g.valor || '';
+      const kgInput = fila.querySelector('[data-camp="kg"]');
+      if (kgInput) kgInput.value = g.kg || '';
+      fila.querySelector('[data-camp="rpe"]').value = g.rpe || '';
+      if (g.validat) {
+        const btn = fila.querySelector('button[aria-label^="Validar"]');
+        if (btn) toggleValidarSerie(btn);
+      }
     });
   }
 
-  function mostrarObservacions(nomExercici, observacions) {
-    alert(nomExercici + '\n\n' + observacions);
-  }
-
-  function toggleValidarSerie(btn) {
-    const fila = btn.closest('[data-fila-serie]');
-    const inputs = fila.querySelectorAll('input');
-    const validat = fila.dataset.validat === 'true';
-
-    if (!validat) {
-      inputs.forEach(function (inp) { inp.disabled = true; });
-      btn.classList.add('bg-gym-mint', 'text-white');
-      btn.classList.remove('bg-gray-200');
-      fila.dataset.validat = 'true';
-    } else {
-      inputs.forEach(function (inp) { inp.disabled = false; });
-      btn.classList.remove('bg-gym-mint', 'text-white');
-      btn.classList.add('bg-gray-200');
-      fila.dataset.validat = 'false';
-    }
-    desarEsborranyEntrenament();
+  function cancelarEntrenament() {
+    if (!confirm('Segur que vols descartar aquest entrenament? Es perdrà el que has introduït.')) return;
+    esborrarEsborrany();
+    rutinaActual = null;
+    mostrarPantalla('screen-rutines');
   }
 
   async function finalitzarEntrenament() {
-    const horaFi = horaActual();
     const series = [];
+    recorrerSeries(function (bloc, fila) {
+      const esTemps = bloc.dataset.tipusExercici === 'Temps';
+      const inputValor = fila.querySelector('[data-camp="repsTemps"]');
+      const kgInput = fila.querySelector('[data-camp="kg"]');
+      const inputRpe = fila.querySelector('[data-camp="rpe"]');
 
-    document.querySelectorAll('#exercicis-content > div[data-exercici]').forEach(function (blocExercici) {
-      const exercici = blocExercici.dataset.exercici;
-      const idExercici = blocExercici.dataset.idExercici;
+      const valor = inputValor.value || inputValor.dataset.defecte || '';
+      const kg = kgInput ? (kgInput.value || kgInput.dataset.defecte || '') : '';
+      const rpe = inputRpe.value || inputRpe.dataset.defecte || '';
+      if (!valor && !kg) return; // sèrie no feta
 
-      blocExercici.querySelectorAll('[data-fila-serie]').forEach(function (fila) {
-        const tipusSerie = fila.dataset.tipus;
-        const numeroSerie = fila.dataset.numero;
-        const inputReps = fila.querySelector('[data-camp="repsTemps"]');
-        const inputKg = fila.querySelector('[data-camp="kg"]');
-        const inputRpe = fila.querySelector('[data-camp="rpe"]');
-
-        const valorReps = inputReps.value || inputReps.dataset.defecte || '';
-        const valorKg = inputKg.value || inputKg.dataset.defecte || '';
-        const valorRpe = inputRpe.value || inputRpe.dataset.defecte || '';
-
-        if (!valorReps && !valorKg) return; // fila buida, no la guardem
-
-        series.push({
-          exercici: exercici, idExercici: idExercici, numeroSerie: numeroSerie, tipusSerie: tipusSerie,
-          reps: valorReps, kg: valorKg, rpe: valorRpe
-        });
+      series.push({
+        exercici: bloc.dataset.exercici, idExercici: bloc.dataset.idExercici,
+        numeroSerie: fila.dataset.numero, tipusSerie: fila.dataset.tipus,
+        reps: esTemps ? '' : valor,
+        temps: esTemps ? mmssASegons(valor) : '',
+        kg: kg, rpe: rpe
       });
     });
 
-    const payload = { data: dataAvui(), horaInici: horaInici, horaFi: horaFi, nomRutina: rutinaActual, series: series };
-    mostrarToast('Desant entrenament...');
-    const res = await postData('guardarEntrenament', payload);
+    if (series.length === 0) { mostrarToast('No has registrat cap sèrie.'); return; }
+
+    mostrarToast('Desant entrenament…');
+    const res = await postData('guardarEntrenament', {
+      data: dataAvui(), horaInici: horaInici, horaFi: horaActual(), nomRutina: rutinaActual, series: series
+    });
+
     if (res.status === 'success') {
-      esborrarEsborranyEntrenament();
-      appData.seguiment = null;
-      appData.evolucioForca = null;
+      esborrarEsborrany();
+      rutinaActual = null;
+      appData.seguiment = null; appData.evolucioForca = null;
       mostrarToast('Entrenament desat! 💪');
       await actualitzarDadesSilenciosament();
-      renderNutricio();
-      renderRutines();
+      renderNutricio(); renderRutines();
       mostrarPantalla('screen-nutricio');
     } else {
-      mostrarToast('Error desant l\'entrenament.');
+      mostrarToast(res.missatge || 'Error desant l\'entrenament.');
     }
   }
 
-  /* ---------- Seguiment ---------- */
+  /* ================= SEGUIMENT ================= */
   function obrirSeguiment() {
     document.getElementById('seg-data').value = dataAvui();
-    document.getElementById('seg-pes').value = '';
-    document.getElementById('seg-toggle-mesures').checked = false;
-    document.getElementById('seg-mesures').classList.add('hidden-screen');
-    ['seg-coll', 'seg-pit', 'seg-cintura', 'seg-cadera', 'seg-braç', 'seg-cama'].forEach(function (id) {
+    ['seg-pes','seg-coll','seg-pit','seg-cintura','seg-cadera','seg-brac','seg-cama'].forEach(function (id) {
       document.getElementById(id).value = '';
     });
+    document.getElementById('seg-toggle-mesures').checked = false;
+    document.getElementById('seg-mesures').classList.add('hidden-screen');
     mostrarPantalla('screen-seguiment');
   }
 
@@ -903,40 +975,34 @@
       payload.pit = document.getElementById('seg-pit').value || '';
       payload.cintura = document.getElementById('seg-cintura').value || '';
       payload.cadera = document.getElementById('seg-cadera').value || '';
-      payload['braç'] = document.getElementById('seg-braç').value || '';
+      payload.brac = document.getElementById('seg-brac').value || '';
       payload.cama = document.getElementById('seg-cama').value || '';
     }
     if (!payload.data || (!payload.pesMitjaSetmanal && !ambMesures)) {
-      mostrarToast('Falta la data i almenys una dada.');
-      return;
+      mostrarToast('Cal la data i almenys una dada.'); return;
     }
     const res = await postData('guardarSeguiment', payload);
     if (res.status === 'success') {
-      mostrarToast('Seguiment desat! 📈');
-      appData.seguiment = null;
-      appData.evolucioForca = null;
+      mostrarToast('Seguiment desat 📈');
+      appData.seguiment = null; appData.evolucioForca = null;
       await actualitzarDadesSilenciosament();
       renderNutricio();
       mostrarPantalla('screen-nutricio');
     } else {
-      mostrarToast('Error desant el seguiment.');
+      mostrarToast(res.missatge || 'Error desant el seguiment.');
     }
   }
 
-  /* ---------- Evolució (gràfics) ---------- */
-  let grafics = {};
-
-  function destruirGrafic_(id) {
-    if (grafics[id]) { grafics[id].destroy(); delete grafics[id]; }
-  }
+  /* ================= EVOLUCIÓ ================= */
+  function destruirGrafic_(id) { if (grafics[id]) { grafics[id].destroy(); delete grafics[id]; } }
 
   function opcionsBase_() {
     return {
       responsive: true,
-      plugins: { legend: { labels: { font: { family: "'Plus Jakarta Sans', sans-serif" } } } },
+      plugins: { legend: { labels: { color: '#9ca3af', font: { family: "'Plus Jakarta Sans', sans-serif", size: 11 } } } },
       scales: {
-        x: { ticks: { font: { family: "'Plus Jakarta Sans', sans-serif" } } },
-        y: { ticks: { font: { family: "'Plus Jakarta Sans', sans-serif" } } }
+        x: { ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { color: '#2e2e36' } },
+        y: { ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { color: '#2e2e36' } }
       }
     };
   }
@@ -944,105 +1010,249 @@
   async function obrirEvolucio() {
     mostrarPantalla('screen-evolucio');
     if (!appData.seguiment || !appData.evolucioForca) {
-      mostrarToast('Carregant evolució...');
+      mostrarToast('Carregant evolució…');
       try {
-        const pin = localStorage.getItem('gymcream_pin');
-        const response = await fetch(API_URL + "?pin=" + encodeURIComponent(pin) + "&dades=evolucio");
-        const data = await response.json();
-        if (data.estat === 'ok') {
-          appData.seguiment = data.seguiment;
-          appData.evolucioForca = data.evolucioForca;
-        }
-      } catch (error) {
-        console.error(error);
-        mostrarToast('Error carregant l\'evolució.');
-        return;
-      }
+        const r = await fetch(API_URL + "?pin=" + encodeURIComponent(pinActual()) + "&dades=evolucio");
+        const data = await r.json();
+        if (data.estat === 'ok') { appData.seguiment = data.seguiment; appData.evolucioForca = data.evolucioForca; }
+      } catch (e) { console.error(e); mostrarToast('Error carregant l\'evolució.'); return; }
     }
 
-    const seguiment = appData.seguiment || [];
-    const etiquetes = seguiment.map(function (s) { return s.data.split ? s.data.split('T')[0] : s.data; });
+    const seg = appData.seguiment || [];
+    const etiquetes = seg.map(function (s) { return s.data; });
 
     destruirGrafic_('pes');
     grafics.pes = new Chart(document.getElementById('graf-pes'), {
       type: 'line',
-      data: { labels: etiquetes, datasets: [{ label: 'Pes (kg)', data: seguiment.map(function (s) { return s.pes || null; }), borderColor: '#ec4899', backgroundColor: '#fbcfe8', tension: 0.3, spanGaps: true }] },
+      data: { labels: etiquetes, datasets: [{ label: 'Pes (kg)', data: seg.map(function (s) { return s.pes || null; }), borderColor: '#ff4da6', backgroundColor: 'rgba(255,77,166,.15)', tension: .3, spanGaps: true, fill: true }] },
       options: opcionsBase_()
     });
 
     destruirGrafic_('greix');
     grafics.greix = new Chart(document.getElementById('graf-greix'), {
       type: 'line',
-      data: { labels: etiquetes, datasets: [{ label: '% Greix (Navy)', data: seguiment.map(function (s) { return s.greixPct || null; }), borderColor: '#831843', backgroundColor: '#f8bbd0', tension: 0.3, spanGaps: true }] },
+      data: { labels: etiquetes, datasets: [{ label: '% greix (Navy)', data: seg.map(function (s) { return s.greixPct || null; }), borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,.12)', tension: .3, spanGaps: true, fill: true }] },
       options: opcionsBase_()
     });
 
     destruirGrafic_('mesures');
-    const campsMesura = [
-      { clau: 'coll', label: 'Coll', color: '#ec4899' },
-      { clau: 'pit', label: 'Pit', color: '#10b981' },
-      { clau: 'cintura', label: 'Cintura', color: '#f59e0b' },
-      { clau: 'cadera', label: 'Cadera', color: '#3b82f6' },
-      { clau: 'braç', label: 'Braç', color: '#a855f7' },
-      { clau: 'cama', label: 'Cama', color: '#ef4444' }
+    const camps = [
+      { k: 'coll', l: 'Coll', c: '#ff4da6' }, { k: 'pit', l: 'Pit', c: '#34d399' },
+      { k: 'cintura', l: 'Cintura', c: '#fbbf24' }, { k: 'cadera', l: 'Cadera', c: '#60a5fa' },
+      { k: 'brac', l: 'Braç', c: '#a78bfa' }, { k: 'cama', l: 'Cama', c: '#f87171' }
     ];
     grafics.mesures = new Chart(document.getElementById('graf-mesures'), {
       type: 'line',
-      data: {
-        labels: etiquetes,
-        datasets: campsMesura.map(function (c) {
-          return { label: c.label, data: seguiment.map(function (s) { return s[c.clau] || null; }), borderColor: c.color, tension: 0.3, spanGaps: true };
-        })
-      },
+      data: { labels: etiquetes, datasets: camps.map(function (c) {
+        return { label: c.l, data: seg.map(function (s) { return s[c.k] || null; }), borderColor: c.c, tension: .3, spanGaps: true };
+      }) },
       options: opcionsBase_()
     });
 
-    const selector = document.getElementById('select-exercici-forca');
-    const evolucio = appData.evolucioForca || {};
-    selector.innerHTML = Object.keys(evolucio).map(function (id) {
-      return `<option value="${id}">${evolucio[id].nom}</option>`;
-    }).join('');
-
+    const evo = appData.evolucioForca || {};
+    document.getElementById('select-exercici-forca').innerHTML =
+      Object.keys(evo).map(function (id) { return `<option value="${escapar(id)}">${escapar(evo[id].nom)}</option>`; }).join('');
     renderGrafForca();
-    mostrarPantalla('screen-evolucio');
   }
 
   function renderGrafForca() {
     const id = document.getElementById('select-exercici-forca').value;
-    const evolucio = appData.evolucioForca || {};
-    const dadesExercici = evolucio[id];
-
+    const dades = (appData.evolucioForca || {})[id];
     destruirGrafic_('forca');
-    if (!dadesExercici || dadesExercici.punts.length < 2) {
-      document.getElementById('graf-forca').classList.add('hidden-screen');
-      document.getElementById('forca-buit').classList.remove('hidden-screen');
-      return;
-    }
-    document.getElementById('graf-forca').classList.remove('hidden-screen');
-    document.getElementById('forca-buit').classList.add('hidden-screen');
+
+    const buit = !dades || dades.punts.length < 2;
+    document.getElementById('graf-forca').classList.toggle('hidden-screen', buit);
+    document.getElementById('forca-buit').classList.toggle('hidden-screen', !buit);
+    if (buit) return;
 
     grafics.forca = new Chart(document.getElementById('graf-forca'), {
       type: 'line',
-      data: {
-        labels: dadesExercici.punts.map(function (p) { return p.data; }),
-        datasets: [{ label: dadesExercici.nom + ' — 1RM estimat (kg)', data: dadesExercici.punts.map(function (p) { return p.est1RM; }), borderColor: '#831843', backgroundColor: '#f8bbd0', tension: 0.3 }]
-      },
+      data: { labels: dades.punts.map(function (p) { return p.data; }),
+        datasets: [{ label: dades.nom + ' (kg)', data: dades.punts.map(function (p) { return p.est1RM; }), borderColor: '#ff4da6', backgroundColor: 'rgba(255,77,166,.15)', tension: .3, fill: true }] },
       options: opcionsBase_()
     });
   }
 
-  /* ---------- Navegació ---------- */
+  /* ================= ADMIN: EXERCICIS ================= */
+  function obrirAdminExercicis() {
+    if (!esAdmin()) return;
+    renderAdminExercicis();
+    mostrarPantalla('screen-admin-exercicis');
+  }
+
+  function seguentIdExercici() {
+    let max = 0;
+    llistaExercicis.forEach(function (e) {
+      const n = parseInt(String(e.id).replace(/\D/g, ''), 10);
+      if (n > max) max = n;
+    });
+    return 'EX' + String(max + 1).padStart(3, '0');
+  }
+
+  function afegirExercici() {
+    llistaExercicis.push({ id: seguentIdExercici(), nom: '', tipus: 'Pes+Reps', video: '', imatge: '', observacions: '' });
+    renderAdminExercicis();
+  }
+  function eliminarExercici(i) {
+    if (!confirm('Eliminar aquest exercici de la base de dades?')) return;
+    llistaExercicis.splice(i, 1); renderAdminExercicis();
+  }
+
+  function renderAdminExercicis() {
+    document.getElementById('admin-exercicis-content').innerHTML = llistaExercicis.map(function (e, i) {
+      return `<div class="bg-surface border border-line rounded-2xl p-4">
+        <div class="flex justify-between items-center mb-3 gap-2">
+          <span class="text-xs font-mono bg-surface2 text-pink px-2 py-1 rounded-lg">${escapar(e.id)}</span>
+          <button onclick="eliminarExercici(${i})" aria-label="Eliminar exercici" class="text-muted hover:text-red-400 w-9 h-9 rounded-lg">✕</button>
+        </div>
+        <label class="block text-xs text-muted mb-1" for="ex-nom-${i}">Nom</label>
+        <input autocomplete="off" id="ex-nom-${i}" type="text" value="${escapar(e.nom)}" oninput="llistaExercicis[${i}].nom=this.value" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 mb-3 outline-none focus:border-pink">
+        <label class="block text-xs text-muted mb-1" for="ex-tipus-${i}">Tipus</label>
+        <select id="ex-tipus-${i}" onchange="llistaExercicis[${i}].tipus=this.value" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 mb-3 outline-none focus:border-pink">
+          <option ${e.tipus === 'Pes+Reps' ? 'selected' : ''}>Pes+Reps</option>
+          <option ${e.tipus === 'Reps sense pes' ? 'selected' : ''}>Reps sense pes</option>
+          <option ${e.tipus === 'Temps' ? 'selected' : ''}>Temps</option>
+        </select>
+        <label class="block text-xs text-muted mb-1" for="ex-video-${i}">Enllaç del vídeo</label>
+        <input autocomplete="off" id="ex-video-${i}" type="url" value="${escapar(e.video)}" oninput="llistaExercicis[${i}].video=this.value" placeholder="https://youtube.com/..." class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 mb-3 outline-none focus:border-pink text-sm">
+        <label class="block text-xs text-muted mb-1" for="ex-img-${i}">Imatge</label>
+        <input autocomplete="off" id="ex-img-${i}" type="text" value="${escapar(e.imatge)}" oninput="llistaExercicis[${i}].imatge=this.value" placeholder="assets/exercicis/1.png" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 mb-3 outline-none focus:border-pink text-sm">
+        <label class="block text-xs text-muted mb-1" for="ex-obs-${i}">Observacions</label>
+        <textarea id="ex-obs-${i}" rows="2" oninput="llistaExercicis[${i}].observacions=this.value" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 outline-none focus:border-pink text-sm resize-none">${escapar(e.observacions)}</textarea>
+      </div>`;
+    }).join('');
+  }
+
+  async function desarExercicis() {
+    const sensNom = llistaExercicis.filter(function (e) { return !e.nom.trim(); });
+    if (sensNom.length > 0) { mostrarToast('Hi ha exercicis sense nom.'); return; }
+    const res = await postData('guardarExercicis', { exercicis: llistaExercicis });
+    if (res.status === 'success') {
+      mostrarToast('Exercicis desats ✅');
+      await actualitzarDadesSilenciosament();
+      renderRutines();
+    } else { mostrarToast(res.missatge || 'Error desant.'); }
+  }
+
+  /* ================= ADMIN: RUTINES ================= */
+  function obrirAdminRutines() {
+    if (!esAdmin()) return;
+    renderAdminRutines();
+    mostrarPantalla('screen-admin-rutines');
+  }
+
+  function afegirFilaRutina() {
+    const ultima = llistaRutines[llistaRutines.length - 1];
+    llistaRutines.push({
+      nomRutina: ultima ? ultima.nomRutina : 'Dia A',
+      exercici: '', idExercici: '', seriesEscalfament: 1, seriesEfectives: 3,
+      objectiu: '', kgObjectiu: '', rpe: ''
+    });
+    renderAdminRutines();
+  }
+  function eliminarFilaRutina(i) {
+    if (!confirm('Eliminar aquest exercici de la rutina?')) return;
+    llistaRutines.splice(i, 1); renderAdminRutines();
+  }
+  function canviarExerciciRutina(i, idExercici) {
+    const ex = llistaExercicis.find(function (e) { return String(e.id) === String(idExercici); });
+    llistaRutines[i].idExercici = idExercici;
+    llistaRutines[i].exercici = ex ? ex.nom : '';
+  }
+
+  function renderAdminRutines() {
+    const opcions = llistaExercicis.map(function (e) {
+      return { id: e.id, nom: e.nom, tipus: e.tipus };
+    });
+
+    document.getElementById('admin-rutines-content').innerHTML = llistaRutines.map(function (r, i) {
+      const tipusEx = (opcions.find(function (o) { return String(o.id) === String(r.idExercici); }) || {}).tipus || '';
+      const etiquetaObjectiu = tipusEx === 'Temps' ? 'Temps objectiu (min:seg)' : 'Reps objectiu';
+      return `<div class="bg-surface border border-line rounded-2xl p-4">
+        <div class="flex justify-between items-center mb-3 gap-2">
+          <div class="flex-grow">
+            <label class="block text-xs text-muted mb-1" for="rt-nom-${i}">Rutina / dia</label>
+            <input autocomplete="off" id="rt-nom-${i}" type="text" value="${escapar(r.nomRutina)}" oninput="llistaRutines[${i}].nomRutina=this.value" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 outline-none focus:border-pink font-bold text-pink">
+          </div>
+          <button onclick="eliminarFilaRutina(${i})" aria-label="Eliminar fila" class="text-muted hover:text-red-400 w-9 h-9 rounded-lg mt-5 shrink-0">✕</button>
+        </div>
+        <label class="block text-xs text-muted mb-1" for="rt-ex-${i}">Exercici</label>
+        <select id="rt-ex-${i}" onchange="canviarExerciciRutina(${i}, this.value); renderAdminRutines()" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 mb-3 outline-none focus:border-pink">
+          <option value="">— Tria un exercici —</option>
+          ${opcions.map(function (o) { return `<option value="${escapar(o.id)}" ${String(o.id) === String(r.idExercici) ? 'selected' : ''}>${escapar(o.nom)}</option>`; }).join('')}
+        </select>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div><label class="block text-xs text-muted mb-1" for="rt-esc-${i}">Sèries escalfament</label><input autocomplete="off" id="rt-esc-${i}" type="number" min="0" value="${escapar(r.seriesEscalfament)}" oninput="llistaRutines[${i}].seriesEscalfament=Number(this.value)||0" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 text-center outline-none focus:border-pink"></div>
+          <div><label class="block text-xs text-muted mb-1" for="rt-efe-${i}">Sèries efectives</label><input autocomplete="off" id="rt-efe-${i}" type="number" min="0" value="${escapar(r.seriesEfectives)}" oninput="llistaRutines[${i}].seriesEfectives=Number(this.value)||0" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 text-center outline-none focus:border-pink"></div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div><label class="block text-xs text-muted mb-1" for="rt-obj-${i}">${etiquetaObjectiu}</label><input autocomplete="off" id="rt-obj-${i}" type="text" value="${escapar(r.objectiu)}" oninput="llistaRutines[${i}].objectiu=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink"></div>
+          <div><label class="block text-xs text-muted mb-1" for="rt-kg-${i}">Kg objectiu</label><input autocomplete="off" id="rt-kg-${i}" type="number" step="0.5" value="${escapar(r.kgObjectiu)}" oninput="llistaRutines[${i}].kgObjectiu=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink"></div>
+          <div><label class="block text-xs text-muted mb-1" for="rt-rpe-${i}">RPE</label><input autocomplete="off" id="rt-rpe-${i}" type="number" step="0.5" value="${escapar(r.rpe)}" oninput="llistaRutines[${i}].rpe=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function desarRutines() {
+    const invalides = llistaRutines.filter(function (r) { return !r.nomRutina.trim() || !r.idExercici; });
+    if (invalides.length > 0) { mostrarToast('Hi ha files sense rutina o sense exercici.'); return; }
+    const res = await postData('guardarRutines', { rutines: llistaRutines });
+    if (res.status === 'success') {
+      mostrarToast('Rutines desades ✅');
+      await actualitzarDadesSilenciosament();
+      renderRutines();
+    } else { mostrarToast(res.missatge || 'Error desant.'); }
+  }
+
+  /* ================= ADMIN: DADES PERSONALS ================= */
+  function obrirAdminDades() {
+    if (!esAdmin()) return;
+    const dp = appData.dadesPersonals || {};
+    document.getElementById('dp-nom').value = dp.nom || '';
+    document.getElementById('dp-naixement').value = dp.dataNaixement || '';
+    document.getElementById('dp-sexe').value = dp.sexe || 'Dona';
+    document.getElementById('dp-alcada').value = dp.alcada || '';
+    document.getElementById('dp-pes').value = dp.pesActual || '';
+    document.getElementById('dp-pes-obj').value = dp.pesObjectiu || '';
+    document.getElementById('dp-activitat').value = dp.factorActivitat || 'Moderat';
+    document.getElementById('dp-objectiu').value = dp.objectiu || 'Perdre greix';
+    document.getElementById('dp-pin').value = '';
+    mostrarPantalla('screen-admin-dades');
+  }
+
+  async function desarDadesPersonals() {
+    const res = await postData('guardarDadesPersonals', {
+      nom: document.getElementById('dp-nom').value,
+      dataNaixement: document.getElementById('dp-naixement').value,
+      sexe: document.getElementById('dp-sexe').value,
+      alcada: document.getElementById('dp-alcada').value,
+      pesActual: document.getElementById('dp-pes').value,
+      pesObjectiu: document.getElementById('dp-pes-obj').value,
+      factorActivitat: document.getElementById('dp-activitat').value,
+      objectiu: document.getElementById('dp-objectiu').value,
+      pin: document.getElementById('dp-pin').value
+    });
+    if (res.status === 'success') {
+      mostrarToast('Dades desades ✅');
+      await actualitzarDadesSilenciosament();
+      renderNutricio();
+      mostrarPantalla('screen-nutricio');
+    } else { mostrarToast(res.missatge || 'Error desant.'); }
+  }
+
+  /* ================= NAVEGACIÓ ================= */
   function mostrarPantalla(id) {
     document.querySelectorAll('main > div').forEach(function (el) { el.classList.add('hidden-screen'); });
     document.getElementById(id).classList.remove('hidden-screen');
     document.getElementById('side-menu').classList.add('translate-x-full');
-    document.getElementById('menu-overlay').classList.add('hidden');
+    document.getElementById('menu-overlay').classList.add('hidden-screen');
     document.getElementById('contingut-principal').scrollTop = 0;
   }
 
   function toggleMenu() {
     document.getElementById('side-menu').classList.toggle('translate-x-full');
-    document.getElementById('menu-overlay').classList.toggle('hidden');
+    document.getElementById('menu-overlay').classList.toggle('hidden-screen');
   }
 </script>
 </body>
