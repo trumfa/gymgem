@@ -87,6 +87,7 @@
     </div>
     <ul class="space-y-1">
       <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="mostrarPantalla('screen-nutricio'); return false;">Inici / Nutrició</a></li>
+      <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirPlanificacio(); return false;">Planificació setmanal</a></li>
       <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="mostrarPantalla('screen-rutines'); return false;">Entrenar</a></li>
       <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirSeguiment(); return false;">Seguiment</a></li>
       <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirEvolucio(); return false;">Evolució</a></li>
@@ -97,6 +98,7 @@
         <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirCalculadora(); return false;">Pla de nutrició</a></li>
         <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirAdminExercicis(); return false;">Base d'exercicis</a></li>
         <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirAdminRutines(); return false;">Editar rutines</a></li>
+        <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirAdminPlanificacio(); return false;">Editar planificació</a></li>
         <li><a href="#" class="block text-txt hover:text-pink font-medium py-2.5" onclick="obrirAdminDades(); return false;">Dades personals</a></li>
       </ul>
     </div>
@@ -190,6 +192,9 @@
     <div id="nutricio-content"></div>
     <button id="btn-editar-nutricio" onclick="obrirCalculadora()" class="hidden-screen w-full mt-3 bg-surface border border-pink text-pink font-bold py-3 rounded-xl hover:bg-surface2 transition-colors">
       Editar el pla de nutrició
+    </button>
+    <button onclick="obrirPlanificacio()" class="w-full mt-3 bg-surface border border-line text-txt font-bold py-3 rounded-xl hover:border-pink transition-colors">
+      📅 Veure la setmana
     </button>
     <button onclick="mostrarPantalla('screen-rutines')" class="w-full mt-3 bg-pink text-ink font-bold py-4 rounded-xl hover:bg-pinksoft transition-colors text-lg flex justify-center items-center gap-2">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -298,6 +303,23 @@
     </div>
 
     <button onclick="desarNutricio()" class="w-full bg-mint text-ink font-bold py-4 rounded-xl hover:opacity-90 transition text-lg">Desar el pla</button>
+  </div>
+
+  <!-- PLANIFICACIÓ SETMANAL (vista) -->
+  <div id="screen-planificacio" class="w-full fade-in hidden-screen pb-24">
+    <h2 class="text-2xl font-display font-bold text-pink mb-1 text-center mt-1">Setmana tipus</h2>
+    <p class="text-center text-xs text-muted mb-4">Toca el dia d'avui per començar l'entrenament.</p>
+    <div id="planificacio-content" class="space-y-2.5"></div>
+    <div id="resum-setmana" class="mt-5 bg-surface border border-line rounded-2xl p-4 text-sm"></div>
+    <button id="btn-editar-planificacio" onclick="obrirAdminPlanificacio()" class="hidden-screen w-full mt-4 bg-surface border border-pink text-pink font-bold py-3 rounded-xl hover:bg-surface2">Editar la planificació</button>
+  </div>
+
+  <!-- ADMIN: PLANIFICACIÓ -->
+  <div id="screen-admin-planificacio" class="w-full fade-in hidden-screen pb-24">
+    <h2 class="text-2xl font-display font-bold text-pink mb-1 text-center mt-1">Editar planificació</h2>
+    <p class="text-center text-xs text-muted mb-4">Assigna a cada dia una rutina o marca'l com a descans.</p>
+    <div id="admin-planificacio-content" class="space-y-3"></div>
+    <button onclick="desarPlanificacio()" class="w-full mt-5 bg-mint text-ink font-bold py-4 rounded-xl hover:opacity-90 transition text-lg">Desar planificació</button>
   </div>
 
   <!-- SELECCIÓ DE RUTINA -->
@@ -940,18 +962,141 @@
     }
   }
 
+  /* ================= PLANIFICACIÓ SETMANAL ================= */
+
+  function obrirPlanificacio() {
+    renderPlanificacio();
+    document.getElementById('btn-editar-planificacio').classList.toggle('hidden-screen', !esAdmin());
+    mostrarPantalla('screen-planificacio');
+  }
+
+  function renderPlanificacio() {
+    const pla = appData.planificacio || [];
+    const avui = appData.diaAvui;
+
+    document.getElementById('planificacio-content').innerHTML = pla.map(function (d) {
+      const esAvui = d.dia === avui;
+      const esDescans = !d.rutina || d.rutina === 'Descans';
+      const existeix = !esDescans && (appData.rutines || {})[d.rutina];
+      const numEx = existeix ? appData.rutines[d.rutina].length : 0;
+
+      const marc = esAvui ? 'border-pink bg-pink/5' : 'border-line bg-surface';
+      const clicable = (!esDescans && existeix);
+
+      return `<div class="border ${marc} rounded-2xl p-4 ${clicable ? 'cursor-pointer hover:border-pink' : ''}"
+        ${clicable ? `onclick="carregarEntrenament('${escapar(d.rutina).replace(/'/g, "\\'")}')" role="button" tabindex="0"` : ''}>
+        <div class="flex justify-between items-center gap-3">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-bold ${esAvui ? 'text-pink' : 'text-txt'}">${escapar(d.dia)}</span>
+              ${esAvui ? '<span class="text-[10px] bg-pink text-ink px-2 py-0.5 rounded-full font-bold">AVUI</span>' : ''}
+            </div>
+            <p class="text-sm ${esDescans ? 'text-muted' : 'text-txt'} mt-0.5 truncate">
+              ${esDescans ? '😴 Descans' : '🏋️ ' + escapar(d.rutina)}
+              ${!esDescans && !existeix ? ' <span class="text-amber text-xs">(rutina no trobada)</span>' : ''}
+            </p>
+            ${d.notes ? `<p class="text-[11px] text-muted mt-1">${escapar(d.notes)}</p>` : ''}
+          </div>
+          ${!esDescans && existeix ? `<span class="text-xs bg-surface2 text-pink px-2.5 py-1 rounded-full shrink-0">${numEx} ex.</span>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+    // Resum de la setmana
+    const diesEntreno = pla.filter(function (d) { return d.rutina && d.rutina !== 'Descans'; });
+    const diesDescans = pla.length - diesEntreno.length;
+    const rutinesUniques = [];
+    diesEntreno.forEach(function (d) { if (rutinesUniques.indexOf(d.rutina) === -1) rutinesUniques.push(d.rutina); });
+
+    document.getElementById('resum-setmana').innerHTML = `
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div><span class="block text-[10px] text-muted uppercase">Entrenaments</span><span class="font-bold text-pink text-lg">${diesEntreno.length}</span></div>
+        <div><span class="block text-[10px] text-muted uppercase">Descans</span><span class="font-bold text-lg">${diesDescans}</span></div>
+        <div><span class="block text-[10px] text-muted uppercase">Rutines</span><span class="font-bold text-lg">${rutinesUniques.length}</span></div>
+      </div>`;
+  }
+
+  /* ---- Admin: editar la planificació ---- */
+  let planificacioEdit = [];
+
+  function obrirAdminPlanificacio() {
+    if (!esAdmin()) return;
+    planificacioEdit = JSON.parse(JSON.stringify(appData.planificacio || []));
+    renderAdminPlanificacio();
+    mostrarPantalla('screen-admin-planificacio');
+  }
+
+  function renderAdminPlanificacio() {
+    const nomsRutines = Object.keys(appData.rutines || {});
+    document.getElementById('admin-planificacio-content').innerHTML = planificacioEdit.map(function (d, i) {
+      const esAvui = d.dia === appData.diaAvui;
+      return `<div class="bg-surface border ${esAvui ? 'border-pink' : 'border-line'} rounded-2xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="font-bold ${esAvui ? 'text-pink' : 'text-txt'}">${escapar(d.dia)}</span>
+          ${esAvui ? '<span class="text-[10px] bg-pink text-ink px-2 py-0.5 rounded-full font-bold">AVUI</span>' : ''}
+        </div>
+        <label class="sr-only" for="pl-rutina-${i}">Rutina de ${escapar(d.dia)}</label>
+        <select id="pl-rutina-${i}" onchange="planificacioEdit[${i}].rutina=this.value" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2.5 mb-2 outline-none focus:border-pink">
+          <option value="Descans" ${d.rutina === 'Descans' ? 'selected' : ''}>😴 Descans</option>
+          ${nomsRutines.map(function (n) { return `<option value="${escapar(n)}" ${d.rutina === n ? 'selected' : ''}>🏋️ ${escapar(n)}</option>`; }).join('')}
+        </select>
+        <label class="sr-only" for="pl-notes-${i}">Notes de ${escapar(d.dia)}</label>
+        <input autocomplete="off" id="pl-notes-${i}" type="text" value="${escapar(d.notes)}" oninput="planificacioEdit[${i}].notes=this.value" placeholder="Nota opcional (ex: caminar 30 min)" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 outline-none focus:border-pink text-sm">
+      </div>`;
+    }).join('');
+  }
+
+  async function desarPlanificacio() {
+    const res = await postData('guardarPlanificacio', { planificacio: planificacioEdit });
+    if (res.status === 'success') {
+      appData.planificacio = JSON.parse(JSON.stringify(planificacioEdit));
+      mostrarToast('Planificació desada 📅');
+      obrirPlanificacio();
+    } else {
+      mostrarToast(res.missatge || 'Error desant.');
+    }
+  }
+
   /* ================= RUTINES (selecció) ================= */
+  /** Què toca avui segons la planificació ('Descans' o el nom de la rutina). */
+  function rutinaDavui() {
+    const pla = appData.planificacio || [];
+    const dia = pla.find(function (d) { return d.dia === appData.diaAvui; });
+    return dia ? dia.rutina : null;
+  }
+
   function renderRutines() {
     const rutines = appData.rutines || {};
     const noms = Object.keys(rutines);
-    document.getElementById('rutines-content').innerHTML = noms.length === 0
-      ? `<p class="text-center text-muted mt-10 text-sm">Encara no hi ha cap rutina definida.</p>`
-      : noms.map(function (nom) {
-          return `<button onclick="carregarEntrenament('${escapar(nom).replace(/'/g, "\\'")}')" class="w-full bg-surface border border-line hover:border-pink rounded-2xl p-5 transition-colors text-left flex justify-between items-center">
-            <span class="font-bold text-lg">${escapar(nom)}</span>
-            <span class="text-xs bg-surface2 text-pink px-2.5 py-1 rounded-full">${rutines[nom].length} ex.</span>
-          </button>`;
-        }).join('');
+    const avui = rutinaDavui();
+
+    if (noms.length === 0) {
+      document.getElementById('rutines-content').innerHTML = `<p class="text-center text-muted mt-10 text-sm">Encara no hi ha cap rutina definida.</p>`;
+      return;
+    }
+
+    let capçalera = '';
+    if (avui === 'Descans') {
+      capçalera = `<div class="bg-surface border border-line rounded-2xl p-4 mb-4 text-center">
+        <p class="text-sm text-muted">😴 Avui (${escapar(appData.diaAvui)}) toca <strong class="text-txt">descans</strong>.</p>
+        <p class="text-[11px] text-muted mt-1">Pots entrenar igualment triant una rutina de sota.</p>
+      </div>`;
+    } else if (avui && rutines[avui]) {
+      capçalera = `<div class="bg-pink/10 border border-pink rounded-2xl p-4 mb-4">
+        <p class="text-[11px] text-muted uppercase tracking-wide mb-1">Avui toca (${escapar(appData.diaAvui)})</p>
+        <button onclick="carregarEntrenament('${escapar(avui).replace(/'/g, "\\'")}')" class="w-full flex justify-between items-center text-left">
+          <span class="font-bold text-lg text-pink">${escapar(avui)}</span>
+          <span class="text-xs bg-surface2 text-pink px-2.5 py-1 rounded-full">${rutines[avui].length} ex.</span>
+        </button>
+      </div><p class="text-[11px] text-muted mb-2 px-1">Altres rutines</p>`;
+    }
+
+    document.getElementById('rutines-content').innerHTML = capçalera + noms.map(function (nom) {
+      return `<button onclick="carregarEntrenament('${escapar(nom).replace(/'/g, "\\'")}')" class="w-full bg-surface border border-line hover:border-pink rounded-2xl p-5 transition-colors text-left flex justify-between items-center">
+        <span class="font-bold text-lg">${escapar(nom)}</span>
+        <span class="text-xs bg-surface2 text-pink px-2.5 py-1 rounded-full">${rutines[nom].length} ex.</span>
+      </button>`;
+    }).join('');
   }
 
   /* ================= ENTRENAMENT ================= */
