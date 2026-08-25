@@ -53,7 +53,7 @@
 <!-- CAPÇALERA -->
 <header class="bg-white shadow-md p-4 flex justify-between items-center relative z-20 shrink-0">
   <div class="flex items-center gap-3">
-    <img src="Gymcream.png" alt="Logo GymCream" class="h-12 w-12 rounded-full border-2 border-gym-pink object-cover shadow-sm">
+    <img src="Gymcream.png" alt="Logo GymCream" class="h-14 w-auto object-contain">
     <h1 class="text-xl font-display font-bold text-gym-berry cursor-pointer" onclick="if(appData.estat==='ok') mostrarPantalla('screen-nutricio')">GymCream</h1>
   </div>
   <button id="btn-menu" class="text-gym-berry focus:outline-none p-2 hidden" aria-label="Obrir menú" onclick="toggleMenu()">
@@ -71,11 +71,11 @@
       </button>
     </div>
     <ul class="space-y-2">
-      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="mostrarPantalla('screen-nutricio'); toggleMenu(); return false;">Inici / Nutrició</a></li>
-      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="obrirCalculadora(); toggleMenu(); return false;">Calculadora de nutrició</a></li>
-      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="mostrarPantalla('screen-rutines'); toggleMenu(); return false;">Les meves Rutines</a></li>
-      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="obrirSeguiment(); toggleMenu(); return false;">Seguiment (pes i mesures)</a></li>
-      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="obrirEvolucio(); toggleMenu(); return false;">Evolució</a></li>
+      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="mostrarPantalla('screen-nutricio'); return false;">Inici / Nutrició</a></li>
+      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="obrirCalculadora(); return false;">Calculadora de nutrició</a></li>
+      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="mostrarPantalla('screen-rutines'); return false;">Les meves Rutines</a></li>
+      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="obrirSeguiment(); return false;">Seguiment (pes i mesures)</a></li>
+      <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="obrirEvolucio(); return false;">Evolució</a></li>
       <li><a href="#" class="block text-gray-700 hover:text-gym-pink font-medium py-2" onclick="tancarSessio()">Tancar Sessió</a></li>
     </ul>
   </div>
@@ -96,7 +96,7 @@
     <h2 class="text-2xl font-display font-bold text-gym-berry mb-2" id="greeting-name">Hola!</h2>
     <p class="text-gray-500 mb-6 text-sm">Introdueix el teu PIN secret per continuar.</p>
     <label for="input-pin" class="sr-only">PIN de 4 dígits</label>
-    <input type="password" id="input-pin" inputmode="numeric" maxlength="4" pattern="\d*" placeholder="••••"
+    <input autocomplete="off" type="password" id="input-pin" inputmode="numeric" maxlength="4" pattern="\d*" placeholder="••••"
       class="w-full text-center text-4xl tracking-widest text-gym-berry font-bold border-2 border-pink-200 rounded-xl py-3 mb-6 focus:outline-none focus:border-gym-pink transition-colors bg-gym-pink-light">
     <button onclick="iniciarApp(document.getElementById('input-pin').value)" class="w-full bg-gym-pink text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gym-berry transition-colors">
       Entrar
@@ -108,15 +108,15 @@
   <div id="screen-alta" class="hidden-screen w-full bg-white rounded-3xl shadow-xl p-6 fade-in mt-4 mb-6">
     <h2 class="text-2xl font-display font-bold text-gym-berry mb-1 text-center">Benvinguda, Munyanyo 🍦</h2>
     <p class="text-center text-sm text-gray-500 mb-6">Omple les teves dades per començar.</p>
-    <form id="form-alta" class="space-y-4" onsubmit="return false;">
+    <form id="form-alta" autocomplete="off" class="space-y-4" onsubmit="return false;">
       <div>
         <label for="alta-nom" class="block text-sm font-semibold text-gray-600 mb-1">Nom</label>
-        <input required id="alta-nom" type="text" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+        <input autocomplete="off" required id="alta-nom" type="text" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label for="alta-naixement" class="block text-sm font-semibold text-gray-600 mb-1">Naixement</label>
-          <input required id="alta-naixement" type="date" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" required id="alta-naixement" type="date" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
         <div>
           <label for="alta-sexe" class="block text-sm font-semibold text-gray-600 mb-1">Sexe</label>
@@ -130,15 +130,15 @@
       <div class="grid grid-cols-3 gap-3">
         <div>
           <label for="alta-alcada" class="block text-sm font-semibold text-gray-600 mb-1">Alçada (cm)</label>
-          <input required id="alta-alcada" type="number" min="100" max="230" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" required id="alta-alcada" type="number" min="100" max="230" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
         <div>
           <label for="alta-pes" class="block text-sm font-semibold text-gray-600 mb-1">Pes actual (kg)</label>
-          <input required id="alta-pes" type="number" step="0.1" min="30" max="250" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" required id="alta-pes" type="number" step="0.1" min="30" max="250" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
         <div>
           <label for="alta-pes-obj" class="block text-sm font-semibold text-gray-600 mb-1">Pes objectiu</label>
-          <input required id="alta-pes-obj" type="number" step="0.1" min="30" max="250" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" required id="alta-pes-obj" type="number" step="0.1" min="30" max="250" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
       </div>
       <div>
@@ -164,7 +164,7 @@
       </div>
       <div>
         <label for="alta-pin" class="block text-sm font-semibold text-gray-600 mb-1">Crea un PIN de 4 dígits</label>
-        <input required id="alta-pin" type="password" inputmode="numeric" maxlength="4" pattern="\d{4}" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none text-center tracking-widest text-xl">
+        <input autocomplete="off" required id="alta-pin" type="password" inputmode="numeric" maxlength="4" pattern="\d{4}" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none text-center tracking-widest text-xl">
       </div>
       <button onclick="enviarAlta()" class="w-full bg-gym-pink text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gym-berry transition-colors mt-2">
         Crear el meu compte
@@ -178,7 +178,7 @@
     <h2 class="text-2xl font-display font-bold text-gym-berry mb-4 text-center mt-2">Pauta Nutricional</h2>
     <div id="nutricio-content"></div>
     <button onclick="obrirCalculadora()" class="w-full mt-3 bg-white border-2 border-gym-pink text-gym-berry font-bold py-3 px-4 rounded-xl hover:bg-gym-pink-light transition-colors">
-      🧮 Ajustar la nutrició
+      🧮 Revisar el pla de nutrició
     </button>
     <button onclick="mostrarPantalla('screen-rutines')" class="w-full mt-3 bg-gym-pink text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:bg-gym-berry transition-colors text-lg flex justify-center items-center gap-2">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -189,7 +189,7 @@
   <!-- PANTALLA: CALCULADORA DE NUTRICIÓ -->
   <div id="screen-calculadora" class="w-full fade-in hidden-screen pb-24">
     <h2 class="text-2xl font-display font-bold text-gym-berry mb-1 text-center mt-2">Calculadora de nutrició</h2>
-    <p class="text-center text-xs text-gray-500 mb-4">Suggeriment automàtic, 100% editable.</p>
+    <p class="text-center text-xs text-gray-500 mb-4 px-4">Per fixar el pla de kcal i macros <strong>al principi</strong> (o quan canviï el pes/objectiu) — no cal refer-ho cada dia, un cop desat és el teu pla de referència.</p>
 
     <div class="bg-white rounded-2xl shadow-md p-5 mb-4 flex items-center gap-4">
       <div id="anell-kcal" class="swirl-ring h-20 w-20 shrink-0 flex items-center justify-center" style="--pct:0">
@@ -210,25 +210,25 @@
       <div class="grid grid-cols-2 gap-3 mb-3">
         <div>
           <label for="calc-ritme" class="block text-xs font-semibold text-gray-500 mb-1" id="calc-ritme-label">Ritme setmanal (g)</label>
-          <input id="calc-ritme" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none" oninput="recalcularMacros()">
+          <input autocomplete="off" id="calc-ritme" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none" oninput="recalcularMacros()">
         </div>
         <div>
           <label for="calc-kcal" class="block text-xs font-semibold text-gray-500 mb-1">Kcal objectiu</label>
-          <input id="calc-kcal" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none font-bold" oninput="actualitzarResumMoments()">
+          <input autocomplete="off" id="calc-kcal" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none font-bold" oninput="actualitzarResumMoments()">
         </div>
       </div>
       <div class="grid grid-cols-3 gap-3">
         <div>
           <label for="calc-proteina" class="block text-xs font-semibold text-blue-600 mb-1">Proteïna (g)</label>
-          <input id="calc-proteina" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" id="calc-proteina" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
         <div>
           <label for="calc-greix" class="block text-xs font-semibold text-yellow-600 mb-1">Greix (g)</label>
-          <input id="calc-greix" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" id="calc-greix" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
         <div>
           <label for="calc-carbs" class="block text-xs font-semibold text-green-600 mb-1">Carbs (g)</label>
-          <input id="calc-carbs" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" id="calc-carbs" type="number" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
       </div>
     </div>
@@ -266,41 +266,41 @@
 
     <div class="bg-white rounded-2xl shadow-md p-5 mb-4">
       <label for="seg-data" class="block text-sm font-semibold text-gray-600 mb-1">Data</label>
-      <input id="seg-data" type="date" class="w-full border border-gray-300 rounded-xl px-3 py-2 mb-4 focus:border-gym-pink outline-none">
+      <input autocomplete="off" id="seg-data" type="date" class="w-full border border-gray-300 rounded-xl px-3 py-2 mb-4 focus:border-gym-pink outline-none">
 
       <label for="seg-pes" class="block text-sm font-semibold text-gray-600 mb-1">Pes mitjà setmanal (kg)</label>
-      <input id="seg-pes" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+      <input autocomplete="off" id="seg-pes" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
     </div>
 
     <div class="bg-white rounded-2xl shadow-md p-5 mb-4">
       <label class="flex items-center gap-2 mb-3 cursor-pointer">
-        <input type="checkbox" id="seg-toggle-mesures" onchange="document.getElementById('seg-mesures').classList.toggle('hidden-screen', !this.checked)" class="w-5 h-5 accent-gym-pink">
+        <input autocomplete="off" type="checkbox" id="seg-toggle-mesures" onchange="document.getElementById('seg-mesures').classList.toggle('hidden-screen', !this.checked)" class="w-5 h-5 accent-gym-pink">
         <span class="font-bold text-gray-800">Afegir mesures d'avui (cada 15 dies)</span>
       </label>
       <div id="seg-mesures" class="hidden-screen grid grid-cols-2 gap-3">
         <div>
           <label for="seg-coll" class="block text-xs font-semibold text-gray-500 mb-1">Coll (cm)</label>
-          <input id="seg-coll" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" id="seg-coll" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
         <div>
           <label for="seg-pit" class="block text-xs font-semibold text-gray-500 mb-1">Pit (cm)</label>
-          <input id="seg-pit" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" id="seg-pit" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
         <div>
           <label for="seg-cintura" class="block text-xs font-semibold text-gray-500 mb-1">Cintura (cm)</label>
-          <input id="seg-cintura" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" id="seg-cintura" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
         <div>
           <label for="seg-cadera" class="block text-xs font-semibold text-gray-500 mb-1">Cadera (cm)</label>
-          <input id="seg-cadera" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" id="seg-cadera" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
         <div>
           <label for="seg-braç" class="block text-xs font-semibold text-gray-500 mb-1">Braç (cm)</label>
-          <input id="seg-braç" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" id="seg-braç" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
         <div>
           <label for="seg-cama" class="block text-xs font-semibold text-gray-500 mb-1">Cama (cm)</label>
-          <input id="seg-cama" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
+          <input autocomplete="off" id="seg-cama" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 focus:border-gym-pink outline-none">
         </div>
       </div>
       <p class="text-[11px] text-gray-400 mt-3">Coll i cintura (i cadera si escau) s'utilitzen per estimar el % de greix corporal (mètode Navy).</p>
@@ -495,6 +495,7 @@
         <div class="flex justify-between text-xs text-gray-500">
           <span>P: ${data[moment].proteines}g</span><span>G: ${data[moment].greixos}g</span><span>C: ${data[moment].carbs}g</span>
         </div>
+        ${data[moment].observacions ? `<p class="text-xs text-gray-400 mt-2 italic">🍽️ ${data[moment].observacions}</p>` : ''}
       </div>`;
     }
 
@@ -577,24 +578,26 @@
       <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
         <div class="flex justify-between items-center mb-2 gap-2">
           <label class="sr-only" for="mom-nom-${i}">Nom del moment</label>
-          <input id="mom-nom-${i}" type="text" value="${m.nom}" oninput="moments[${i}].nom=this.value" class="font-bold text-gym-pink border-b border-transparent focus:border-gym-pink outline-none w-2/3 bg-transparent">
+          <input autocomplete="off" id="mom-nom-${i}" type="text" value="${m.nom}" oninput="moments[${i}].nom=this.value" class="font-bold text-gym-pink border-b border-transparent focus:border-gym-pink outline-none w-2/3 bg-transparent">
           <button onclick="eliminarMoment(${i})" aria-label="Eliminar moment ${m.nom}" class="text-gray-400 hover:text-red-500 w-8 h-8 flex items-center justify-center rounded-lg">✕</button>
         </div>
         <div class="grid grid-cols-3 gap-2">
           <div>
             <label class="sr-only" for="mom-p-${i}">Proteïna grams</label>
-            <input id="mom-p-${i}" type="number" value="${m.proteina}" oninput="moments[${i}].proteina=Number(this.value)||0; actualitzarResumMoments()" class="w-full border border-blue-100 bg-blue-50 rounded-lg px-2 py-1.5 text-center text-blue-700 font-semibold outline-none focus:border-blue-400">
+            <input autocomplete="off" id="mom-p-${i}" type="number" value="${m.proteina}" oninput="moments[${i}].proteina=Number(this.value)||0; actualitzarResumMoments()" class="w-full border border-blue-100 bg-blue-50 rounded-lg px-2 py-1.5 text-center text-blue-700 font-semibold outline-none focus:border-blue-400">
           </div>
           <div>
             <label class="sr-only" for="mom-g-${i}">Greix grams</label>
-            <input id="mom-g-${i}" type="number" value="${m.greix}" oninput="moments[${i}].greix=Number(this.value)||0; actualitzarResumMoments()" class="w-full border border-yellow-100 bg-yellow-50 rounded-lg px-2 py-1.5 text-center text-yellow-700 font-semibold outline-none focus:border-yellow-400">
+            <input autocomplete="off" id="mom-g-${i}" type="number" value="${m.greix}" oninput="moments[${i}].greix=Number(this.value)||0; actualitzarResumMoments()" class="w-full border border-yellow-100 bg-yellow-50 rounded-lg px-2 py-1.5 text-center text-yellow-700 font-semibold outline-none focus:border-yellow-400">
           </div>
           <div>
             <label class="sr-only" for="mom-c-${i}">Carbohidrats grams</label>
-            <input id="mom-c-${i}" type="number" value="${m.carbs}" oninput="moments[${i}].carbs=Number(this.value)||0; actualitzarResumMoments()" class="w-full border border-green-100 bg-green-50 rounded-lg px-2 py-1.5 text-center text-green-700 font-semibold outline-none focus:border-green-400">
+            <input autocomplete="off" id="mom-c-${i}" type="number" value="${m.carbs}" oninput="moments[${i}].carbs=Number(this.value)||0; actualitzarResumMoments()" class="w-full border border-green-100 bg-green-50 rounded-lg px-2 py-1.5 text-center text-green-700 font-semibold outline-none focus:border-green-400">
           </div>
         </div>
-        <p class="text-right text-xs text-gray-400 mt-1">${calcKcal(m)} kcal</p>
+        <p class="text-right text-xs text-gray-400 mt-1 mb-2">${calcKcal(m)} kcal</p>
+        <label class="sr-only" for="mom-obs-${i}">Exemple de menjar per ${m.nom}</label>
+        <input id="mom-obs-${i}" type="text" value="${m.observacions || ''}" placeholder="Exemple de menjar (ex: iogurt amb civada i nous)" oninput="moments[${i}].observacions=this.value" class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-600 outline-none focus:border-gym-pink bg-gray-50">
       </div>`;
     });
     document.getElementById('moments-content').innerHTML = html;
@@ -697,11 +700,11 @@
           <div class="flex justify-between items-center gap-2">
             <div class="${color} w-10 h-10 flex items-center justify-center rounded-lg font-bold text-sm shrink-0">${etiqueta}</div>
             <label class="sr-only" for="reps-${exIndex}-${i}">${esTemps ? 'Temps' : 'Repeticions'} sèrie ${etiqueta} de ${ex.exercici}</label>
-            <input id="reps-${exIndex}-${i}" data-camp="repsTemps" data-defecte="${ex.objectiu || ''}" type="text" inputmode="decimal" placeholder="${ex.objectiu || ''}" class="w-16 h-11 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
+            <input autocomplete="off" id="reps-${exIndex}-${i}" data-camp="repsTemps" data-defecte="${ex.objectiu || ''}" type="text" inputmode="decimal" placeholder="${ex.objectiu || ''}" class="w-16 h-11 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
             <label class="sr-only" for="kg-${exIndex}-${i}">Kg sèrie ${etiqueta} de ${ex.exercici}</label>
-            <input id="kg-${exIndex}-${i}" data-camp="kg" data-defecte="${ex.kgObjectiu || ''}" type="number" step="0.5" placeholder="${ex.kgObjectiu || 'Kg'}" class="w-16 h-11 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
+            <input autocomplete="off" id="kg-${exIndex}-${i}" data-camp="kg" data-defecte="${ex.kgObjectiu || ''}" type="number" step="0.5" placeholder="${ex.kgObjectiu || 'Kg'}" class="w-16 h-11 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
             <label class="sr-only" for="rpe-${exIndex}-${i}">RPE sèrie ${etiqueta} de ${ex.exercici}</label>
-            <input id="rpe-${exIndex}-${i}" data-camp="rpe" data-defecte="${ex.rpe || ''}" type="number" step="0.5" placeholder="${ex.rpe || ''}" class="w-12 h-11 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
+            <input autocomplete="off" id="rpe-${exIndex}-${i}" data-camp="rpe" data-defecte="${ex.rpe || ''}" type="number" step="0.5" placeholder="${ex.rpe || ''}" class="w-12 h-11 border border-gray-300 rounded-lg text-center font-bold focus:border-gym-pink outline-none">
             <button type="button" aria-label="Validar sèrie ${etiqueta} de ${ex.exercici}" onclick="toggleValidarSerie(this)" class="w-11 h-11 bg-gray-200 hover:bg-gym-mint hover:text-white rounded-lg flex items-center justify-center transition-colors shrink-0">✓</button>
           </div>
           ${refText ? `<p class="text-[11px] text-gray-400 ml-12">Última vegada: ${refText}${ref.rpe ? ' · @' + ref.rpe : ''}</p>` : ''}
