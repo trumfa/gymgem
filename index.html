@@ -34,7 +34,10 @@
 <style>
   body { font-family: 'Plus Jakarta Sans', sans-serif; }
   .font-display { font-family: 'Fredoka', sans-serif; }
-  .hidden-screen { display: none; }
+  /* !important perquè Tailwind injecta els seus estils DESPRÉS d'aquest
+     bloc: sense això, classes com "flex" o "grid" guanyen i l'element
+     no s'arriba a amagar mai. */
+  .hidden-screen { display: none !important; }
   .fade-in { animation: fadeIn .3s ease-in-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   :focus-visible { outline: 3px solid #831843; outline-offset: 2px; border-radius: 4px; }
@@ -551,7 +554,7 @@
 
   function recalcularMacros() {
     const dp = appData.dadesPersonals;
-    const pes = Number(dp.pesActual);
+    const pes = Number(dp.pesReferencia) > 0 ? Number(dp.pesReferencia) : Number(dp.pesActual);
     const ritme = Number(document.getElementById('calc-ritme').value) || 0;
     const kcalManteniment = appData.macros.manteniment;
     const ajust = Math.round((ritme * 7700 / 1000) / 7);
@@ -757,6 +760,13 @@
     localStorage.setItem(CLAU_ESBORRANY, JSON.stringify({ nomRutina: rutinaActual, horaInici: horaInici, series: series }));
   }
 
+  /** Hi ha alguna dada realment introduïda a l'esborrany? */
+  function esborranyTeDades_(esborrany) {
+    return (esborrany.series || []).some(function (s) {
+      return s.reps || s.kg || s.rpe || s.validat;
+    });
+  }
+
   function esborrarEsborranyEntrenament() {
     localStorage.removeItem(CLAU_ESBORRANY);
   }
@@ -767,7 +777,7 @@
     if (!raw) return false;
     let esborrany;
     try { esborrany = JSON.parse(raw); } catch (e) { esborrarEsborranyEntrenament(); return false; }
-    if (!esborrany || !esborrany.nomRutina || !appData.rutines || !appData.rutines[esborrany.nomRutina]) {
+    if (!esborrany || !esborrany.nomRutina || !appData.rutines || !appData.rutines[esborrany.nomRutina] || !esborranyTeDades_(esborrany)) {
       esborrarEsborranyEntrenament();
       return false;
     }
