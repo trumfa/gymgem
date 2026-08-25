@@ -353,8 +353,18 @@
   let rutinaActual = null;
 
   window.onload = function () {
+    // Traiem el service worker per ara (causava que es quedés servint
+    // versions velles de la web des de la memòria cau). Desregistrem
+    // qualsevol versió que hi hagués abans i netegem les seves caches.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(function () {});
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        registrations.forEach(function (reg) { reg.unregister(); });
+      });
+    }
+    if (window.caches) {
+      caches.keys().then(function (claus) {
+        claus.forEach(function (clau) { caches.delete(clau); });
+      });
     }
     const savedPin = localStorage.getItem('gymcream_pin') || '';
     iniciarApp(savedPin);
@@ -848,6 +858,8 @@
     const res = await postData('guardarEntrenament', payload);
     if (res.status === 'success') {
       esborrarEsborranyEntrenament();
+      appData.seguiment = null;
+      appData.evolucioForca = null;
       mostrarToast('Entrenament desat! 💪');
       await actualitzarDadesSilenciosament();
       renderNutricio();
@@ -891,6 +903,8 @@
     const res = await postData('guardarSeguiment', payload);
     if (res.status === 'success') {
       mostrarToast('Seguiment desat! 📈');
+      appData.seguiment = null;
+      appData.evolucioForca = null;
       await actualitzarDadesSilenciosament();
       renderNutricio();
       mostrarPantalla('screen-nutricio');
@@ -917,7 +931,25 @@
     };
   }
 
-  function obrirEvolucio() {
+  async function obrirEvolucio() {
+    mostrarPantalla('screen-evolucio');
+    if (!appData.seguiment || !appData.evolucioForca) {
+      mostrarToast('Carregant evolució...');
+      try {
+        const pin = localStorage.getItem('gymcream_pin');
+        const response = await fetch(API_URL + "?pin=" + encodeURIComponent(pin) + "&dades=evolucio");
+        const data = await response.json();
+        if (data.estat === 'ok') {
+          appData.seguiment = data.seguiment;
+          appData.evolucioForca = data.evolucioForca;
+        }
+      } catch (error) {
+        console.error(error);
+        mostrarToast('Error carregant l\'evolució.');
+        return;
+      }
+    }
+
     const seguiment = appData.seguiment || [];
     const etiquetes = seguiment.map(function (s) { return s.data.split ? s.data.split('T')[0] : s.data; });
 
