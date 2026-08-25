@@ -417,6 +417,18 @@
   </div>
 </div>
 
+<!-- MODAL DE COMENTARI POST-ENTRENAMENT -->
+<div id="modal-comentari" class="hidden-screen fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6">
+  <div class="bg-surface border border-line rounded-2xl p-6 max-w-sm w-full">
+    <h3 class="font-display font-bold text-pink text-lg mb-1">Com ha anat?</h3>
+    <p class="text-xs text-muted mb-3">Deixa un comentari sobre l'entrenament, si vols (sensacions, molèsties...).</p>
+    <label class="sr-only" for="comentari-entrenament-text">Comentari de l'entrenament</label>
+    <textarea autocomplete="off" id="comentari-entrenament-text" rows="3" placeholder="Escriu aquí (opcional)..." class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 outline-none focus:border-pink resize-none text-sm"></textarea>
+    <button onclick="enviarComentariEntrenament()" class="w-full mt-4 bg-mint text-ink font-bold py-3 rounded-xl hover:opacity-90">Enviar</button>
+    <button onclick="tancarComentariEntrenament()" class="w-full mt-2 text-muted text-sm py-2 hover:text-txt">Ometre</button>
+  </div>
+</div>
+
 <div id="toast" class="toast hidden-screen bg-surface border border-line text-txt px-4 py-2.5 rounded-full text-sm" role="status" aria-live="polite"></div>
 
 <script>
@@ -1000,6 +1012,7 @@
             <div class="min-w-0">
               <h3 class="font-bold text-pink truncate">${escapar(ex.exercici)}</h3>
               <p class="text-[11px] text-muted">${escapar(tipus)}${infoEx.video ? ` · <a href="${escapar(infoEx.video)}" target="_blank" rel="noopener" class="text-pinksoft underline">Vídeo</a>` : ''}</p>
+              ${ex.observacions ? `<p class="text-[11px] text-pinksoft mt-0.5">📌 ${escapar(ex.observacions)}</p>` : ''}
             </div>
           </div>
           ${infoEx.observacions ? `<button aria-label="Observacions de ${escapar(ex.exercici)}" onclick="mostrarObservacions(${exIndex})" data-obs="${escapar(infoEx.observacions)}" class="bg-ink text-txt w-9 h-9 rounded-lg font-bold shrink-0 hover:bg-line">+</button>` : ''}
@@ -1160,15 +1173,45 @@
 
     if (res.status === 'success') {
       esborrarEsborrany();
+      const sessioDesada = { data: dataAvui(), horaInici: horaInici, nomRutina: rutinaActual };
       rutinaActual = null;
       appData.seguiment = null; appData.evolucioForca = null;
       mostrarToast('Entrenament desat! 💪');
       await actualitzarDadesSilenciosament();
       renderNutricio(); renderRutines();
-      mostrarPantalla('screen-nutricio');
+      obrirComentariEntrenament(sessioDesada);
     } else {
       mostrarToast(res.missatge || 'Error desant l\'entrenament.');
     }
+  }
+
+  /* -------- Comentari post-entrenament -------- */
+  let sessioPendentComentari = null;
+
+  function obrirComentariEntrenament(sessio) {
+    sessioPendentComentari = sessio;
+    document.getElementById('comentari-entrenament-text').value = '';
+    document.getElementById('modal-comentari').classList.remove('hidden-screen');
+  }
+
+  async function enviarComentariEntrenament() {
+    const text = document.getElementById('comentari-entrenament-text').value.trim();
+    document.getElementById('modal-comentari').classList.add('hidden-screen');
+    if (text && sessioPendentComentari) {
+      const res = await postData('guardarObservacioEntrenament', {
+        data: sessioPendentComentari.data, horaInici: sessioPendentComentari.horaInici,
+        nomRutina: sessioPendentComentari.nomRutina, observacions: text
+      });
+      mostrarToast(res.status === 'success' ? 'Comentari desat 📝' : 'No s\'ha pogut desar el comentari.');
+    }
+    sessioPendentComentari = null;
+    mostrarPantalla('screen-nutricio');
+  }
+
+  function tancarComentariEntrenament() {
+    document.getElementById('modal-comentari').classList.add('hidden-screen');
+    sessioPendentComentari = null;
+    mostrarPantalla('screen-nutricio');
   }
 
   /* ================= SEGUIMENT ================= */
@@ -1308,7 +1351,7 @@
   }
 
   function afegirExercici() {
-    llistaExercicis.push({ id: seguentIdExercici(), nom: '', tipus: 'Pes+Reps', video: '', imatge: '', observacions: '' });
+    llistaExercicis.push({ id: seguentIdExercici(), nom: '', tipus: 'Pes+Reps', video: '', imatge: '', observacions: '', material: 'Barra', musclePrincipal: '', tipusArticular: 'Multiarticular' });
     renderAdminExercicis();
   }
   function eliminarExercici(i) {
@@ -1331,6 +1374,23 @@
           <option ${e.tipus === 'Reps sense pes' ? 'selected' : ''}>Reps sense pes</option>
           <option ${e.tipus === 'Temps' ? 'selected' : ''}>Temps</option>
         </select>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <label class="block text-xs text-muted mb-1" for="ex-material-${i}">Material</label>
+            <select id="ex-material-${i}" onchange="llistaExercicis[${i}].material=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 outline-none focus:border-pink text-sm">
+              ${['Barra','Manuella','Màquina','Cable','Goma','Kettlebell','Sense material'].map(function(op){ return `<option ${e.material===op?'selected':''}>${op}</option>`; }).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-muted mb-1" for="ex-articular-${i}">Tipus articular</label>
+            <select id="ex-articular-${i}" onchange="llistaExercicis[${i}].tipusArticular=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 outline-none focus:border-pink text-sm">
+              <option ${e.tipusArticular==='Multiarticular'?'selected':''}>Multiarticular</option>
+              <option ${e.tipusArticular==='Analític'?'selected':''}>Analític</option>
+            </select>
+          </div>
+        </div>
+        <label class="block text-xs text-muted mb-1" for="ex-muscul-${i}">Múscul principal</label>
+        <input autocomplete="off" id="ex-muscul-${i}" type="text" value="${escapar(e.musclePrincipal)}" oninput="llistaExercicis[${i}].musclePrincipal=this.value" placeholder="Pit, esquena, cama, espatlla..." class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 mb-3 outline-none focus:border-pink text-sm">
         <label class="block text-xs text-muted mb-1" for="ex-video-${i}">Enllaç del vídeo</label>
         <input autocomplete="off" id="ex-video-${i}" type="url" value="${escapar(e.video)}" oninput="llistaExercicis[${i}].video=this.value" placeholder="https://youtube.com/..." class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 mb-3 outline-none focus:border-pink text-sm">
         <label class="block text-xs text-muted mb-1" for="ex-img-${i}">Imatge</label>
@@ -1364,7 +1424,7 @@
     llistaRutines.push({
       nomRutina: ultima ? ultima.nomRutina : 'Dia A',
       exercici: '', idExercici: '', seriesEscalfament: 1, seriesEfectives: 3,
-      objectiu: '', kgObjectiu: '', rpe: ''
+      objectiu: '', kgObjectiu: '', rpe: '', observacions: ''
     });
     renderAdminRutines();
   }
@@ -1403,11 +1463,13 @@
           <div><label class="block text-xs text-muted mb-1" for="rt-esc-${i}">Sèries escalfament</label><input autocomplete="off" id="rt-esc-${i}" type="number" min="0" value="${escapar(r.seriesEscalfament)}" oninput="llistaRutines[${i}].seriesEscalfament=Number(this.value)||0" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 text-center outline-none focus:border-pink"></div>
           <div><label class="block text-xs text-muted mb-1" for="rt-efe-${i}">Sèries efectives</label><input autocomplete="off" id="rt-efe-${i}" type="number" min="0" value="${escapar(r.seriesEfectives)}" oninput="llistaRutines[${i}].seriesEfectives=Number(this.value)||0" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 text-center outline-none focus:border-pink"></div>
         </div>
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-3 gap-2 mb-3">
           <div><label class="block text-xs text-muted mb-1" for="rt-obj-${i}">${etiquetaObjectiu}</label><input autocomplete="off" id="rt-obj-${i}" type="text" value="${escapar(r.objectiu)}" oninput="llistaRutines[${i}].objectiu=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink"></div>
           <div><label class="block text-xs text-muted mb-1" for="rt-kg-${i}">Kg objectiu</label><input autocomplete="off" id="rt-kg-${i}" type="number" step="0.5" value="${escapar(r.kgObjectiu)}" oninput="llistaRutines[${i}].kgObjectiu=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink"></div>
           <div><label class="block text-xs text-muted mb-1" for="rt-rpe-${i}">RPE</label><input autocomplete="off" id="rt-rpe-${i}" type="number" step="0.5" value="${escapar(r.rpe)}" oninput="llistaRutines[${i}].rpe=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink"></div>
         </div>
+        <label class="block text-xs text-muted mb-1" for="rt-obs-${i}">Observacions (surt sota el nom a l'entrenament)</label>
+        <textarea id="rt-obs-${i}" rows="2" oninput="llistaRutines[${i}].observacions=this.value" placeholder="Ex: baixar lent, no bloquejar el colze..." class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 outline-none focus:border-pink text-sm resize-none">${escapar(r.observacions)}</textarea>
       </div>`;
     }).join('');
   }
