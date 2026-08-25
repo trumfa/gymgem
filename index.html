@@ -200,16 +200,31 @@
   <!-- CALCULADORA / PLA DE NUTRICIÓ (admin) -->
   <div id="screen-calculadora" class="w-full fade-in hidden-screen pb-24">
     <h2 class="text-2xl font-display font-bold text-pink mb-1 text-center mt-1">Pla de nutrició</h2>
-    <p class="text-center text-xs text-muted mb-4 px-2">Es fixa al principi del programa (o quan canviï el pes o l'objectiu). No cal refer-lo cada dia.</p>
+    <p class="text-center text-xs text-muted mb-4 px-2">Es fixa al principi i es revisa quan canvia el pes o l'objectiu. No es recalcula sol.</p>
 
-    <!-- Explicació del càlcul -->
+    <!-- Botó de recàlcul -->
+    <button onclick="recalcularAmbUltimPes()" class="w-full mb-4 bg-surface border border-pink text-pink font-bold py-3 rounded-xl hover:bg-surface2 transition-colors flex items-center justify-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+      Actualitzar amb l'últim pes registrat
+    </button>
+
+    <!-- 1. Base del càlcul -->
     <div class="bg-surface border border-line rounded-2xl p-5 mb-4">
-      <h3 class="font-bold mb-3">1. Quantes calories?</h3>
-      <div class="text-sm space-y-1.5 mb-4">
-        <div class="flex justify-between"><span class="text-muted">Pes usat pel càlcul</span><span id="calc-pes-usat" class="font-semibold"></span></div>
+      <h3 class="font-bold mb-1">1. Base del càlcul</h3>
+      <p class="text-[11px] text-muted mb-3" id="calc-metode"></p>
+      <div class="text-sm space-y-1.5">
+        <div class="flex justify-between"><span class="text-muted">Pes de referència</span><span id="calc-pes-usat" class="font-semibold"></span></div>
+        <div class="flex justify-between" id="fila-greix"><span class="text-muted">% greix estimat</span><span id="calc-greix-pct" class="font-semibold"></span></div>
+        <div class="flex justify-between" id="fila-ffm"><span class="text-muted">Massa magra</span><span id="calc-ffm" class="font-semibold"></span></div>
         <div class="flex justify-between"><span class="text-muted">Metabolisme basal</span><span id="calc-bmr" class="font-semibold"></span></div>
-        <div class="flex justify-between"><span class="text-muted">Manteniment (amb activitat)</span><span id="calc-manteniment" class="font-semibold"></span></div>
+        <div class="flex justify-between border-t border-line pt-1.5"><span class="text-muted">Manteniment (× activitat)</span><span id="calc-manteniment" class="font-semibold text-txt"></span></div>
       </div>
+    </div>
+
+    <!-- 2. Estratègia -->
+    <div class="bg-surface border border-line rounded-2xl p-5 mb-4">
+      <h3 class="font-bold mb-1">2. Estratègia</h3>
+      <p class="text-[11px] text-pinksoft mb-3" id="calc-nota-objectiu"></p>
       <label for="calc-ritme" class="block text-sm font-semibold text-muted mb-1">Ritme de canvi de pes</label>
       <p class="text-[11px] text-muted mb-2" id="calc-ritme-ajuda"></p>
       <div class="flex items-center gap-2 mb-3">
@@ -217,38 +232,48 @@
         <span class="text-sm text-muted">grams per setmana</span>
       </div>
       <div class="bg-surface2 rounded-xl p-3 flex justify-between items-center">
-        <span class="text-sm text-muted">Calories objectiu del dia</span>
+        <span class="text-sm text-muted">Calories objectiu</span>
         <div class="flex items-center gap-2">
-          <input autocomplete="off" id="calc-kcal" type="number" class="w-24 bg-ink border border-line rounded-lg px-2 py-1.5 text-right font-bold text-pink outline-none focus:border-pink" oninput="actualitzarResumMoments()">
+          <input autocomplete="off" id="calc-kcal" type="number" class="w-24 bg-ink border border-line rounded-lg px-2 py-1.5 text-right font-bold text-pink outline-none focus:border-pink" oninput="kcalEditadesAMa()">
           <span class="text-sm text-muted">kcal</span>
         </div>
       </div>
+      <div id="calc-avisos" class="mt-3 space-y-1.5"></div>
     </div>
 
-    <!-- Macros -->
+    <!-- 3. Macros -->
     <div class="bg-surface border border-line rounded-2xl p-5 mb-4">
-      <h3 class="font-bold mb-1">2. Repartiment en macros</h3>
-      <p class="text-[11px] text-muted mb-3">Suggerit automàticament. Pots ajustar-ho a mà si vols.</p>
-      <div class="grid grid-cols-3 gap-2">
+      <h3 class="font-bold mb-1">3. Macros del dia</h3>
+      <p class="text-[11px] text-muted mb-3">La proteïna es fixa primer i no es toca; el greix té un mínim de salut; els carbohidrats absorbeixen la resta.</p>
+      <div class="grid grid-cols-3 gap-2 mb-3">
         <div>
           <label for="calc-proteina" class="block text-xs font-semibold text-sky mb-1">Proteïna (g)</label>
-          <input autocomplete="off" id="calc-proteina" type="number" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-sky">
+          <input autocomplete="off" id="calc-proteina" type="number" oninput="actualitzarDetallMacros()" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-sky">
+          <p id="det-proteina" class="text-[10px] text-muted text-center mt-1"></p>
         </div>
         <div>
           <label for="calc-greix" class="block text-xs font-semibold text-amber mb-1">Greix (g)</label>
-          <input autocomplete="off" id="calc-greix" type="number" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-amber">
+          <input autocomplete="off" id="calc-greix" type="number" oninput="actualitzarDetallMacros()" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-amber">
+          <p id="det-greix" class="text-[10px] text-muted text-center mt-1"></p>
         </div>
         <div>
           <label for="calc-carbs" class="block text-xs font-semibold text-mint mb-1">Carbs (g)</label>
-          <input autocomplete="off" id="calc-carbs" type="number" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-mint">
+          <input autocomplete="off" id="calc-carbs" type="number" oninput="actualitzarDetallMacros()" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-mint">
+          <p id="det-carbs" class="text-[10px] text-muted text-center mt-1"></p>
         </div>
       </div>
+      <div class="flex h-2.5 rounded-full overflow-hidden bg-surface2 mb-2">
+        <div id="barra-prot" class="bg-sky" style="width:0%"></div>
+        <div id="barra-greix" class="bg-amber" style="width:0%"></div>
+        <div id="barra-carbs" class="bg-mint" style="width:0%"></div>
+      </div>
+      <p id="calc-suma-kcal" class="text-[11px] text-muted text-right"></p>
     </div>
 
-    <!-- Repartiment per moments -->
+    <!-- 4. Repartiment -->
     <div class="bg-surface border border-line rounded-2xl p-5 mb-4">
-      <h3 class="font-bold mb-1">3. Repartiment durant el dia</h3>
-      <p class="text-[11px] text-muted mb-4">Distribueix els macros entre els moments. L'anell mostra quant portes assignat respecte l'objectiu.</p>
+      <h3 class="font-bold mb-1">4. Repartiment durant el dia</h3>
+      <p class="text-[11px] text-muted mb-4">Distribueix els macros entre els moments del dia.</p>
 
       <div class="flex items-center gap-4 mb-4">
         <div id="anell-kcal" class="swirl-ring h-20 w-20 shrink-0 flex items-center justify-center" style="--pct:0">
@@ -257,13 +282,18 @@
           </div>
         </div>
         <div class="flex-grow text-sm space-y-1">
-          <div class="flex justify-between"><span class="text-muted">Assignat als moments</span><span id="calc-kcal-assignat" class="font-semibold">0 kcal</span></div>
-          <div class="flex justify-between"><span class="text-muted">Objectiu del dia</span><span id="calc-kcal-total" class="font-semibold">0 kcal</span></div>
-          <div class="flex justify-between"><span class="text-muted">Queda per assignar</span><span id="calc-kcal-resta" class="font-semibold text-pink">0 kcal</span></div>
+          <div class="flex justify-between"><span class="text-muted">Assignat</span><span id="calc-kcal-assignat" class="font-semibold">0 kcal</span></div>
+          <div class="flex justify-between"><span class="text-muted">Objectiu</span><span id="calc-kcal-total" class="font-semibold">0 kcal</span></div>
+          <div class="flex justify-between"><span class="text-muted">Queda</span><span id="calc-kcal-resta" class="font-semibold text-pink">0 kcal</span></div>
         </div>
       </div>
 
-      <button onclick="afegirMoment()" class="w-full text-sm bg-surface2 text-pink font-bold px-3 py-2.5 rounded-xl hover:bg-line mb-3">+ Afegir moment del dia</button>
+      <div id="resum-macros-moments" class="grid grid-cols-3 gap-2 mb-4 text-center text-[11px]"></div>
+
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <button onclick="afegirMoment()" class="text-sm bg-surface2 text-pink font-bold px-3 py-2.5 rounded-xl hover:bg-line">+ Moment</button>
+        <button onclick="repartirAutomaticament()" class="text-sm bg-surface2 text-pink font-bold px-3 py-2.5 rounded-xl hover:bg-line">Repartir auto.</button>
+      </div>
       <div id="moments-content" class="space-y-3"></div>
     </div>
 
@@ -588,27 +618,20 @@
     </div>` + html;
   }
 
-  /* ================= CALCULADORA (admin) ================= */
+  /* ================= CALCULADORA (admin) =================
+     El "coneixement expert" (g/kg de proteïna, mínims de greix i
+     carbohidrats, etc.) viu al backend i arriba dins macros.params.
+     Aquí només es fa l'aritmètica, així no hi ha dues versions de
+     la mateixa regla que puguin acabar dient coses diferents.
+     ======================================================== */
+
   function obrirCalculadora() {
     if (!esAdmin()) { mostrarToast('Només l\'administrador pot editar el pla.'); return; }
+    if (!appData.macros) { mostrarToast('Primer cal donar d\'alta les dades personals.'); return; }
+
+    pintarBaseCalcul();
+
     const m = appData.macros;
-    if (!m) { mostrarToast('Primer cal donar d\'alta les dades personals.'); return; }
-
-    document.getElementById('calc-pes-usat').innerText = m.pesUsat + ' kg';
-    document.getElementById('calc-bmr').innerText = m.bmr + ' kcal';
-    document.getElementById('calc-manteniment').innerText = m.manteniment + ' kcal';
-
-    const objectiu = appData.dadesPersonals.objectiu;
-    let ajuda;
-    if (objectiu === 'Perdre greix') {
-      ajuda = 'Negatiu = perdre pes. Recomanat entre −200 i −400 g/setmana per no perdre múscul.';
-    } else if (objectiu === 'Guanyar múscul') {
-      ajuda = 'Positiu = guanyar pes. Màxim +100 g/setmana per minimitzar el greix guanyat.';
-    } else {
-      ajuda = 'Prop de 0 = mantenir el pes mentre milloren la força i la composició corporal.';
-    }
-    document.getElementById('calc-ritme-ajuda').innerText = ajuda + ' Cada gram de canvi setmanal ajusta les calories del dia.';
-
     const ritme = document.getElementById('calc-ritme');
     ritme.min = m.rangRitmeG.min;
     ritme.max = m.rangRitmeG.max;
@@ -618,6 +641,8 @@
     document.getElementById('calc-proteina').value = m.macros.proteina;
     document.getElementById('calc-greix').value = m.macros.greix;
     document.getElementById('calc-carbs').value = m.macros.carbohidrats;
+    pintarAvisos(m.avisos);
+    actualitzarDetallMacros();
 
     moments = Object.keys(appData.nutricio || {}).map(function (nom) {
       const d = appData.nutricio[nom];
@@ -630,23 +655,171 @@
     mostrarPantalla('screen-calculadora');
   }
 
+  function pintarBaseCalcul() {
+    const m = appData.macros;
+    document.getElementById('calc-metode').innerText =
+      'Fórmula: ' + m.metodeBMR + (m.dataPes ? ' · pes del ' + m.dataPes : ' · pes de l\'alta');
+    document.getElementById('calc-pes-usat').innerText = m.pesUsat + ' kg';
+    document.getElementById('calc-bmr').innerText = m.bmr + ' kcal';
+    document.getElementById('calc-manteniment').innerText = m.manteniment + ' kcal (×' + m.factorUsat + ')';
+
+    const teGreix = m.greixPct !== null && m.greixPct !== undefined;
+    document.getElementById('fila-greix').classList.toggle('hidden-screen', !teGreix);
+    document.getElementById('fila-ffm').classList.toggle('hidden-screen', !teGreix);
+    if (teGreix) {
+      document.getElementById('calc-greix-pct').innerText = m.greixPct + '%' + (m.dataGreix ? ' (' + m.dataGreix + ')' : '');
+      document.getElementById('calc-ffm').innerText = m.ffm + ' kg';
+    }
+
+    document.getElementById('calc-nota-objectiu').innerText = m.params.nota;
+
+    const obj = m.params.objectiu;
+    let ajuda;
+    if (obj === 'Perdre greix') {
+      ajuda = 'Negatiu = perdre pes. Entre −200 i −400 g/setmana: prou ràpid per veure canvis, prou lent per no perdre múscul.';
+    } else if (obj === 'Guanyar múscul') {
+      ajuda = 'Positiu = guanyar pes. Màxim +100 g/setmana; per sobre d\'això el que s\'afegeix és greix, no múscul.';
+    } else if (obj === 'Recomposició') {
+      ajuda = 'A prop de 0: el pes gairebé no es mou, però la composició sí. Cal paciència i molta proteïna.';
+    } else {
+      ajuda = 'A prop de 0 per sostenir el pes mentre continua guanyant força.';
+    }
+    document.getElementById('calc-ritme-ajuda').innerText = ajuda;
+  }
+
+  /** Mateixa jerarquia que al backend: proteïna > greix > carbohidrats. */
+  function repartirMacrosLocal(params, kcal) {
+    const avisos = [];
+    const pes = params.pes;
+    const proteina = Math.round(params.baseProteina * params.proteinaPerKg);
+
+    const greixMin = Math.round(pes * params.greixMinPerKg);
+    let greix = Math.round(kcal * params.pctGreix / 9);
+    if (greix < greixMin) {
+      greix = greixMin;
+      avisos.push('El greix s\'ha pujat fins al mínim de salut (' + params.greixMinPerKg + ' g/kg).');
+    }
+
+    let carbs = Math.round((kcal - proteina * 4 - greix * 9) / 4);
+    const carbsMin = Math.round(pes * params.carbsMinPerKg);
+
+    if (carbs < carbsMin && greix > greixMin) {
+      const reduir = Math.min(greix - greixMin, Math.ceil(((carbsMin - carbs) * 4) / 9));
+      greix -= reduir;
+      carbs = Math.round((kcal - proteina * 4 - greix * 9) / 4);
+    }
+
+    if (carbs < 0) {
+      carbs = 0;
+      avisos.push('Les calories no donen ni per cobrir proteïna i greix. Puja les calories.');
+    } else if (carbs < carbsMin) {
+      avisos.push('Carbohidrats per sota de ' + params.carbsMinPerKg + ' g/kg: pot ressentir-se la força.');
+    }
+    if (kcal < params.kcalMinimSegur) {
+      avisos.push('Per sota del mínim segur (' + params.kcalMinimSegur + ' kcal). Suavitza el ritme.');
+    }
+
+    return { proteina: proteina, greix: greix, carbohidrats: carbs, avisos: avisos };
+  }
+
+  /** Quan es canvia el ritme: recalcula calories i macros. */
   function recalcularMacros() {
-    const dp = appData.dadesPersonals;
-    const pes = Number(dp.pesReferencia) > 0 ? Number(dp.pesReferencia) : Number(dp.pesActual);
+    const params = appData.macros.params;
     const ritme = Number(document.getElementById('calc-ritme').value) || 0;
-    const kcalObjectiu = appData.macros.manteniment + Math.round((ritme * 7700 / 1000) / 7);
+    const coeficient = ritme < 0 ? params.kcalKgGreix : params.kcalKgGuany;
+    const kcal = Math.round(params.manteniment + (ritme * coeficient / 1000) / 7);
 
-    const proteina = Math.round(pes * (dp.objectiu === 'Guanyar múscul' ? 1.8 : 2.0));
-    const greix = Math.round(Math.max(pes * 0.8, kcalObjectiu * 0.25 / 9));
-    const carbs = Math.max(0, Math.round((kcalObjectiu - proteina * 4 - greix * 9) / 4));
+    document.getElementById('calc-kcal').value = kcal;
+    const r = repartirMacrosLocal(params, kcal);
+    document.getElementById('calc-proteina').value = r.proteina;
+    document.getElementById('calc-greix').value = r.greix;
+    document.getElementById('calc-carbs').value = r.carbohidrats;
+    pintarAvisos(r.avisos);
+    actualitzarDetallMacros();
+  }
 
-    document.getElementById('calc-kcal').value = kcalObjectiu;
-    document.getElementById('calc-proteina').value = proteina;
-    document.getElementById('calc-greix').value = greix;
-    document.getElementById('calc-carbs').value = carbs;
+  /** Si s'editen les kcal a mà, es tornen a repartir els macros. */
+  function kcalEditadesAMa() {
+    const params = appData.macros.params;
+    const kcal = Number(document.getElementById('calc-kcal').value) || 0;
+    const r = repartirMacrosLocal(params, kcal);
+    document.getElementById('calc-proteina').value = r.proteina;
+    document.getElementById('calc-greix').value = r.greix;
+    document.getElementById('calc-carbs').value = r.carbohidrats;
+    pintarAvisos(r.avisos);
+    actualitzarDetallMacros();
+  }
+
+  function pintarAvisos(avisos) {
+    document.getElementById('calc-avisos').innerHTML = (avisos || []).map(function (a) {
+      return '<p class="text-[11px] text-amber bg-amber/10 border border-amber/30 rounded-lg px-2.5 py-2">⚠️ ' + escapar(a) + '</p>';
+    }).join('');
+  }
+
+  function actualitzarDetallMacros() {
+    const pes = appData.macros.params.pes;
+    const p = Number(document.getElementById('calc-proteina').value) || 0;
+    const g = Number(document.getElementById('calc-greix').value) || 0;
+    const c = Number(document.getElementById('calc-carbs').value) || 0;
+    const total = p * 4 + g * 9 + c * 4;
+
+    document.getElementById('det-proteina').innerText = (Math.round(p / pes * 100) / 100) + ' g/kg';
+    document.getElementById('det-greix').innerText = (Math.round(g / pes * 100) / 100) + ' g/kg';
+    document.getElementById('det-carbs').innerText = (Math.round(c / pes * 100) / 100) + ' g/kg';
+
+    document.getElementById('barra-prot').style.width = total ? (p * 4 / total * 100) + '%' : '0%';
+    document.getElementById('barra-greix').style.width = total ? (g * 9 / total * 100) + '%' : '0%';
+    document.getElementById('barra-carbs').style.width = total ? (c * 4 / total * 100) + '%' : '0%';
+
+    const pctP = total ? Math.round(p * 4 / total * 100) : 0;
+    const pctG = total ? Math.round(g * 9 / total * 100) : 0;
+    const pctC = total ? Math.round(c * 4 / total * 100) : 0;
+    document.getElementById('calc-suma-kcal').innerText =
+      'Sumen ' + total + ' kcal — ' + pctP + '% proteïna · ' + pctG + '% greix · ' + pctC + '% carbs';
+
     actualitzarResumMoments();
   }
 
+  /** Botó: torna a calcular-ho tot amb l'últim pes i greix registrats. */
+  async function recalcularAmbUltimPes() {
+    mostrarToast('Consultant l\'últim registre…');
+    try {
+      const r = await fetch(API_URL + '?pin=' + encodeURIComponent(pinActual()) + '&dades=recalcul');
+      const data = await r.json();
+      if (data.estat !== 'ok' || !data.macros) { mostrarToast('No s\'han pogut obtenir les dades.'); return; }
+
+      const anterior = appData.macros;
+      const nou = data.macros;
+      const resum =
+        'Pes: ' + anterior.pesUsat + ' → ' + nou.pesUsat + ' kg\n' +
+        'Manteniment: ' + anterior.manteniment + ' → ' + nou.manteniment + ' kcal\n' +
+        'Objectiu: ' + anterior.kcalObjectiu + ' → ' + nou.kcalObjectiu + ' kcal\n' +
+        'Proteïna: ' + anterior.macros.proteina + ' → ' + nou.macros.proteina + ' g\n' +
+        'Greix: ' + anterior.macros.greix + ' → ' + nou.macros.greix + ' g\n' +
+        'Carbs: ' + anterior.macros.carbohidrats + ' → ' + nou.macros.carbohidrats + ' g\n\n' +
+        'Vols aplicar aquests valors nous?';
+
+      if (!confirm(resum)) return;
+
+      appData.macros = nou;
+      appData.dadesPersonals.pesReferencia = nou.pesUsat;
+      pintarBaseCalcul();
+      const ritme = document.getElementById('calc-ritme');
+      ritme.min = nou.rangRitmeG.min; ritme.max = nou.rangRitmeG.max; ritme.value = nou.ritmeSetmanalG;
+      document.getElementById('calc-kcal').value = nou.kcalObjectiu;
+      document.getElementById('calc-proteina').value = nou.macros.proteina;
+      document.getElementById('calc-greix').value = nou.macros.greix;
+      document.getElementById('calc-carbs').value = nou.macros.carbohidrats;
+      pintarAvisos(nou.avisos);
+      actualitzarDetallMacros();
+      mostrarToast('Objectius actualitzats. Recorda desar el pla.');
+    } catch (e) {
+      console.error(e);
+      mostrarToast('Error consultant les dades.');
+    }
+  }
+
+  /* -------- Moments del dia -------- */
   function afegirMoment() {
     moments.push({ nom: 'Nou moment', proteina: 0, greix: 0, carbs: 0, observacions: '' });
     renderMoments(); actualitzarResumMoments();
@@ -655,6 +828,33 @@
     moments.splice(i, 1); renderMoments(); actualitzarResumMoments();
   }
   function calcKcal(m) { return Math.round(m.proteina * 4 + m.greix * 9 + m.carbs * 4); }
+
+  /** Reparteix el total del dia entre els moments existents. */
+  function repartirAutomaticament() {
+    if (moments.length === 0) { mostrarToast('Afegeix almenys un moment.'); return; }
+    const objP = Number(document.getElementById('calc-proteina').value) || 0;
+    const objG = Number(document.getElementById('calc-greix').value) || 0;
+    const objC = Number(document.getElementById('calc-carbs').value) || 0;
+
+    // Mantenim la proporció actual si ja hi havia repartiment; si no, a parts iguals
+    const totalActual = moments.reduce(function (a, m) { return a + calcKcal(m); }, 0);
+    const pesos = moments.map(function (m) {
+      return totalActual > 0 ? calcKcal(m) / totalActual : 1 / moments.length;
+    });
+
+    let acumP = 0, acumG = 0, acumC = 0;
+    moments.forEach(function (m, i) {
+      const ultim = (i === moments.length - 1);
+      m.proteina = ultim ? Math.max(0, objP - acumP) : Math.round(objP * pesos[i]);
+      m.greix    = ultim ? Math.max(0, objG - acumG) : Math.round(objG * pesos[i]);
+      m.carbs    = ultim ? Math.max(0, objC - acumC) : Math.round(objC * pesos[i]);
+      acumP += m.proteina; acumG += m.greix; acumC += m.carbs;
+    });
+
+    renderMoments();
+    actualitzarResumMoments();
+    mostrarToast('Repartit entre ' + moments.length + ' moments.');
+  }
 
   function renderMoments() {
     document.getElementById('moments-content').innerHTML = moments.map(function (m, i) {
@@ -689,6 +889,24 @@
     elResta.className = 'font-semibold ' + (Math.abs(resta) <= 25 ? 'text-mint' : (resta < 0 ? 'text-red-400' : 'text-pink'));
     document.getElementById('anell-pct').innerText = pct + '%';
     document.getElementById('anell-kcal').style.setProperty('--pct', Math.min(100, Math.max(0, pct)));
+
+    // Comparativa macro a macro entre el repartit i l'objectiu
+    const objP = Number(document.getElementById('calc-proteina').value) || 0;
+    const objG = Number(document.getElementById('calc-greix').value) || 0;
+    const objC = Number(document.getElementById('calc-carbs').value) || 0;
+    const sumP = moments.reduce(function (a, m) { return a + m.proteina; }, 0);
+    const sumG = moments.reduce(function (a, m) { return a + m.greix; }, 0);
+    const sumC = moments.reduce(function (a, m) { return a + m.carbs; }, 0);
+
+    function cel(etiqueta, suma, objectiu, color) {
+      const ok = Math.abs(suma - objectiu) <= 3;
+      return `<div class="bg-surface2 rounded-lg py-2">
+        <span class="block ${color}">${etiqueta}</span>
+        <span class="font-bold ${ok ? 'text-mint' : 'text-txt'}">${suma}/${objectiu}g</span>
+      </div>`;
+    }
+    document.getElementById('resum-macros-moments').innerHTML =
+      cel('Proteïna', sumP, objP, 'text-sky') + cel('Greix', sumG, objG, 'text-amber') + cel('Carbs', sumC, objC, 'text-mint');
   }
 
   async function desarNutricio() {
