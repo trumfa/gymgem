@@ -308,7 +308,8 @@
   <!-- PLANIFICACIÓ SETMANAL (vista) -->
   <div id="screen-planificacio" class="w-full fade-in hidden-screen pb-24">
     <h2 class="text-2xl font-display font-bold text-pink mb-1 text-center mt-1">Setmana tipus</h2>
-    <p class="text-center text-xs text-muted mb-4">Toca el dia d'avui per començar l'entrenament.</p>
+    <p class="text-center text-xs text-muted mb-3">Toca un dia per veure'n els exercicis.</p>
+    <button onclick="alternarTotsElsDies()" class="w-full mb-4 text-sm bg-surface2 text-pink font-bold px-3 py-2.5 rounded-xl hover:bg-line">Desplegar / plegar tots els dies</button>
     <div id="planificacio-content" class="space-y-2.5"></div>
     <div id="resum-setmana" class="mt-5 bg-surface border border-line rounded-2xl p-4 text-sm"></div>
     <button id="btn-editar-planificacio" onclick="obrirAdminPlanificacio()" class="hidden-screen w-full mt-4 bg-surface border border-pink text-pink font-bold py-3 rounded-xl hover:bg-surface2">Editar la planificació</button>
@@ -974,18 +975,36 @@
     const pla = appData.planificacio || [];
     const avui = appData.diaAvui;
 
-    document.getElementById('planificacio-content').innerHTML = pla.map(function (d) {
+    document.getElementById('planificacio-content').innerHTML = pla.map(function (d, idx) {
       const esAvui = d.dia === avui;
       const esDescans = !d.rutina || d.rutina === 'Descans';
-      const existeix = !esDescans && (appData.rutines || {})[d.rutina];
-      const numEx = existeix ? appData.rutines[d.rutina].length : 0;
-
+      const exercicis = (!esDescans && (appData.rutines || {})[d.rutina]) || null;
       const marc = esAvui ? 'border-pink bg-pink/5' : 'border-line bg-surface';
-      const clicable = (!esDescans && existeix);
 
-      return `<div class="border ${marc} rounded-2xl p-4 ${clicable ? 'cursor-pointer hover:border-pink' : ''}"
-        ${clicable ? `onclick="carregarEntrenament('${escapar(d.rutina).replace(/'/g, "\\'")}')" role="button" tabindex="0"` : ''}>
-        <div class="flex justify-between items-center gap-3">
+      // Detall d'exercicis del dia
+      let detall = '';
+      if (exercicis) {
+        detall = `<div id="detall-dia-${idx}" class="hidden-screen mt-3 pt-3 border-t border-line space-y-1.5">
+          ${exercicis.map(function (ex) {
+            const infoEx = (appData.exercicis || {})[ex.idExercici] || {};
+            const esTemps = infoEx.tipus === 'Temps';
+            const series = (parseInt(ex.seriesEscalfament) || 0) + (parseInt(ex.seriesEfectives) || 0);
+            const objectiu = ex.objectiu ? (esTemps ? ex.objectiu : ex.objectiu + ' reps') : '';
+            return `<div class="flex justify-between items-start gap-2 text-[12px]">
+              <div class="min-w-0">
+                <span class="text-txt">${escapar(ex.exercici)}</span>
+                ${infoEx.material ? `<span class="text-muted"> · ${escapar(infoEx.material)}</span>` : ''}
+              </div>
+              <span class="text-muted shrink-0 text-right">${series}×${escapar(objectiu)}${ex.kgObjectiu ? ' · ' + escapar(ex.kgObjectiu) + 'kg' : ''}</span>
+            </div>`;
+          }).join('')}
+          <button onclick="event.stopPropagation(); carregarEntrenament('${escapar(d.rutina).replace(/'/g, "\\'")}')" class="w-full mt-3 bg-pink text-ink font-bold py-2.5 rounded-lg text-sm hover:bg-pinksoft">Començar aquesta rutina</button>
+        </div>`;
+      }
+
+      return `<div class="border ${marc} rounded-2xl p-4">
+        <div class="flex justify-between items-center gap-3 ${exercicis ? 'cursor-pointer' : ''}"
+          ${exercicis ? `onclick="alternarDetallDia(${idx})" role="button" tabindex="0"` : ''}>
           <div class="min-w-0">
             <div class="flex items-center gap-2">
               <span class="font-bold ${esAvui ? 'text-pink' : 'text-txt'}">${escapar(d.dia)}</span>
@@ -993,12 +1012,15 @@
             </div>
             <p class="text-sm ${esDescans ? 'text-muted' : 'text-txt'} mt-0.5 truncate">
               ${esDescans ? '😴 Descans' : '🏋️ ' + escapar(d.rutina)}
-              ${!esDescans && !existeix ? ' <span class="text-amber text-xs">(rutina no trobada)</span>' : ''}
+              ${!esDescans && !exercicis ? ' <span class="text-amber text-xs">(rutina no trobada)</span>' : ''}
             </p>
             ${d.notes ? `<p class="text-[11px] text-muted mt-1">${escapar(d.notes)}</p>` : ''}
           </div>
-          ${!esDescans && existeix ? `<span class="text-xs bg-surface2 text-pink px-2.5 py-1 rounded-full shrink-0">${numEx} ex.</span>` : ''}
+          ${exercicis ? `<span class="text-xs bg-surface2 text-pink px-2.5 py-1 rounded-full shrink-0 flex items-center gap-1">
+            ${exercicis.length} ex. <span id="fletxa-dia-${idx}">▾</span>
+          </span>` : ''}
         </div>
+        ${detall}
       </div>`;
     }).join('');
 
@@ -1014,6 +1036,27 @@
         <div><span class="block text-[10px] text-muted uppercase">Descans</span><span class="font-bold text-lg">${diesDescans}</span></div>
         <div><span class="block text-[10px] text-muted uppercase">Rutines</span><span class="font-bold text-lg">${rutinesUniques.length}</span></div>
       </div>`;
+  }
+
+  function alternarDetallDia(idx) {
+    const detall = document.getElementById('detall-dia-' + idx);
+    const fletxa = document.getElementById('fletxa-dia-' + idx);
+    if (!detall) return;
+    const obert = !detall.classList.contains('hidden-screen');
+    detall.classList.toggle('hidden-screen', obert);
+    if (fletxa) fletxa.textContent = obert ? '▾' : '▴';
+  }
+
+  function alternarTotsElsDies() {
+    const detalls = document.querySelectorAll('[id^="detall-dia-"]');
+    const nHi = Array.prototype.filter.call(detalls, function (d) { return !d.classList.contains('hidden-screen'); }).length;
+    const obrir = nHi === 0;
+    detalls.forEach(function (d) {
+      d.classList.toggle('hidden-screen', !obrir);
+      const idx = d.id.replace('detall-dia-', '');
+      const fletxa = document.getElementById('fletxa-dia-' + idx);
+      if (fletxa) fletxa.textContent = obrir ? '▴' : '▾';
+    });
   }
 
   /* ---- Admin: editar la planificació ---- */
@@ -1583,6 +1626,24 @@
     llistaRutines[i].exercici = ex ? ex.nom : '';
   }
 
+  /** Parts d'un temps guardat com a "mm:ss". */
+  function minutsDe(valor) {
+    const text = String(valor || '').trim();
+    if (text.indexOf(':') > -1) return parseInt(text.split(':')[0], 10) || 0;
+    return parseInt(text, 10) || 0;
+  }
+  function segonsDe(valor) {
+    const text = String(valor || '').trim();
+    if (text.indexOf(':') > -1) return parseInt(text.split(':')[1], 10) || 0;
+    return 0;
+  }
+  /** Combina els dos camps en el format "mm:ss" que desem al full. */
+  function fixarTempsRutina(i) {
+    const min = parseInt(document.getElementById('rt-min-' + i).value, 10) || 0;
+    const seg = parseInt(document.getElementById('rt-seg-' + i).value, 10) || 0;
+    llistaRutines[i].objectiu = min + ':' + String(seg).padStart(2, '0');
+  }
+
   function renderAdminRutines() {
     const opcions = llistaExercicis.map(function (e) {
       return { id: e.id, nom: e.nom, tipus: e.tipus };
@@ -1608,8 +1669,17 @@
           <div><label class="block text-xs text-muted mb-1" for="rt-esc-${i}">Sèries escalfament</label><input autocomplete="off" id="rt-esc-${i}" type="number" min="0" value="${escapar(r.seriesEscalfament)}" oninput="llistaRutines[${i}].seriesEscalfament=Number(this.value)||0" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 text-center outline-none focus:border-pink"></div>
           <div><label class="block text-xs text-muted mb-1" for="rt-efe-${i}">Sèries efectives</label><input autocomplete="off" id="rt-efe-${i}" type="number" min="0" value="${escapar(r.seriesEfectives)}" oninput="llistaRutines[${i}].seriesEfectives=Number(this.value)||0" class="w-full bg-surface2 border border-line rounded-lg px-3 py-2 text-center outline-none focus:border-pink"></div>
         </div>
-        <div class="grid grid-cols-3 gap-2 mb-3">
-          <div><label class="block text-xs text-muted mb-1" for="rt-obj-${i}">${etiquetaObjectiu}</label><input autocomplete="off" id="rt-obj-${i}" type="text" value="${escapar(r.objectiu)}" oninput="llistaRutines[${i}].objectiu=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink"></div>
+        <div class="grid ${tipusEx === 'Temps' ? 'grid-cols-4' : 'grid-cols-3'} gap-2 mb-3">
+          ${tipusEx === 'Temps' ? `
+          <div class="col-span-1">
+            <label class="block text-xs text-muted mb-1" for="rt-min-${i}">Minuts</label>
+            <input autocomplete="off" id="rt-min-${i}" type="number" min="0" value="${minutsDe(r.objectiu)}" oninput="fixarTempsRutina(${i})" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink">
+          </div>
+          <div class="col-span-1">
+            <label class="block text-xs text-muted mb-1" for="rt-seg-${i}">Segons</label>
+            <input autocomplete="off" id="rt-seg-${i}" type="number" min="0" max="59" value="${segonsDe(r.objectiu)}" oninput="fixarTempsRutina(${i})" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink">
+          </div>` : `
+          <div><label class="block text-xs text-muted mb-1" for="rt-obj-${i}">${etiquetaObjectiu}</label><input autocomplete="off" id="rt-obj-${i}" type="text" value="${escapar(r.objectiu)}" oninput="llistaRutines[${i}].objectiu=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink"></div>`}
           <div><label class="block text-xs text-muted mb-1" for="rt-kg-${i}">Kg objectiu</label><input autocomplete="off" id="rt-kg-${i}" type="number" step="0.5" value="${escapar(r.kgObjectiu)}" oninput="llistaRutines[${i}].kgObjectiu=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink"></div>
           <div><label class="block text-xs text-muted mb-1" for="rt-rpe-${i}">RPE</label><input autocomplete="off" id="rt-rpe-${i}" type="number" step="0.5" value="${escapar(r.rpe)}" oninput="llistaRutines[${i}].rpe=this.value" class="w-full bg-surface2 border border-line rounded-lg px-2 py-2 text-center outline-none focus:border-pink"></div>
         </div>
