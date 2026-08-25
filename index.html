@@ -431,6 +431,12 @@
 
 </main>
 
+<!-- MODAL D'IMATGE AMPLIADA -->
+<div id="modal-imatge" class="hidden-screen fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6" onclick="tancarImatgeAmpliada()">
+  <button aria-label="Tancar" onclick="tancarImatgeAmpliada()" class="absolute top-4 right-4 text-white w-10 h-10 flex items-center justify-center text-2xl">✕</button>
+  <img id="modal-imatge-img" src="" alt="Exercici ampliat" class="max-w-full max-h-full rounded-2xl object-contain">
+</div>
+
 <!-- MODAL D'OBSERVACIONS -->
 <div id="modal-obs" class="hidden-screen fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6" onclick="tancarObservacions(event)">
   <div class="bg-surface border border-line rounded-2xl p-6 max-w-sm w-full" onclick="event.stopPropagation()">
@@ -991,9 +997,13 @@
             const series = (parseInt(ex.seriesEscalfament) || 0) + (parseInt(ex.seriesEfectives) || 0);
             const objectiu = ex.objectiu ? (esTemps ? ex.objectiu : ex.objectiu + ' reps') : '';
             return `<div class="flex justify-between items-start gap-2 text-[12px]">
-              <div class="min-w-0">
-                <span class="text-txt">${escapar(ex.exercici)}</span>
-                ${infoEx.material ? `<span class="text-muted"> · ${escapar(infoEx.material)}</span>` : ''}
+              <div class="flex items-center gap-2 min-w-0">
+                ${infoEx.imatge ? `<img src="${escapar(infoEx.imatge)}" alt="Veure ${escapar(ex.exercici)} més gran" role="button" tabindex="0" onclick="event.stopPropagation(); mostrarImatgeAmpliada('${escapar(infoEx.imatge).replace(/'/g, "\\'")}')" class="w-9 h-9 rounded-lg object-cover shrink-0 border border-line cursor-pointer">` : ''}
+                <div class="min-w-0">
+                  <span class="text-txt">${escapar(ex.exercici)}</span>
+                  ${infoEx.material ? `<span class="text-muted"> · ${escapar(infoEx.material)}</span>` : ''}
+                  ${infoEx.video ? ` · <a href="${escapar(infoEx.video)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-pinksoft underline">Vídeo</a>` : ''}
+                </div>
               </div>
               <span class="text-muted shrink-0 text-right">${series}×${escapar(objectiu)}${ex.kgObjectiu ? ' · ' + escapar(ex.kgObjectiu) + 'kg' : ''}</span>
             </div>`;
@@ -1196,7 +1206,7 @@
       return `<div class="bg-surface border border-line rounded-2xl overflow-hidden" data-exercici="${escapar(ex.exercici)}" data-id-exercici="${escapar(ex.idExercici)}" data-tipus-exercici="${escapar(tipus)}">
         <div class="bg-surface2 px-4 py-3 border-b border-line flex justify-between items-center gap-2">
           <div class="flex items-center gap-3 min-w-0">
-            ${infoEx.imatge ? `<img src="${escapar(infoEx.imatge)}" alt="" class="w-11 h-11 rounded-lg object-cover shrink-0 border border-line">` : ''}
+            ${infoEx.imatge ? `<img src="${escapar(infoEx.imatge)}" alt="Veure ${escapar(ex.exercici)} més gran" role="button" tabindex="0" onclick="mostrarImatgeAmpliada('${escapar(infoEx.imatge).replace(/'/g, "\\'")}')" class="w-11 h-11 rounded-lg object-cover shrink-0 border border-line cursor-pointer">` : ''}
             <div class="min-w-0">
               <h3 class="font-bold text-pink truncate">${escapar(ex.exercici)}</h3>
               <p class="text-[11px] text-muted">${escapar(tipus)}${infoEx.video ? ` · <a href="${escapar(infoEx.video)}" target="_blank" rel="noopener" class="text-pinksoft underline">Vídeo</a>` : ''}</p>
@@ -1220,6 +1230,15 @@
 
     if (esborrany) aplicarEsborrany_(esborrany);
     mostrarPantalla('screen-entrenament');
+  }
+
+  function mostrarImatgeAmpliada(url) {
+    document.getElementById('modal-imatge-img').src = url;
+    document.getElementById('modal-imatge').classList.remove('hidden-screen');
+  }
+  function tancarImatgeAmpliada() {
+    document.getElementById('modal-imatge').classList.add('hidden-screen');
+    document.getElementById('modal-imatge-img').src = '';
   }
 
   function mostrarObservacions(exIndex) {
