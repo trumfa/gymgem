@@ -166,10 +166,25 @@
         </div>
       </div>
       <div>
-        <label for="alta-activitat" class="block text-sm font-semibold text-muted mb-1">Nivell d'activitat</label>
+        <label for="alta-activitat" class="block text-sm font-semibold text-muted mb-1">Activitat diària <span class="text-pinksoft">(sense comptar el gimnàs)</span></label>
         <select required id="alta-activitat" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none">
-          <option value="">Tria…</option><option>Sedentari</option><option>Lleuger</option><option>Moderat</option><option>Actiu</option><option>Molt actiu</option>
+          <option value="">Tria…</option>
+          <option value="Sedentària">Sedentària — feina d'oficina, poc moviment</option>
+          <option value="Lleugera">Lleugera — a peu sovint o dempeus part del dia</option>
+          <option value="Activa">Activa — feina amb moviment constant</option>
+          <option value="Molt activa">Molt activa — feina física exigent</option>
         </select>
+        <p class="text-[11px] text-muted mt-1">L'entrenament el comptem a part, al camp de sota.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="alta-dies" class="block text-sm font-semibold text-muted mb-1">Dies gimnàs/setmana</label>
+          <input autocomplete="off" required id="alta-dies" type="number" min="0" max="7" value="3" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none text-center">
+        </div>
+        <div>
+          <label for="alta-minuts" class="block text-sm font-semibold text-muted mb-1">Minuts per sessió</label>
+          <input autocomplete="off" required id="alta-minuts" type="number" min="15" max="180" step="5" value="60" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none text-center">
+        </div>
       </div>
       <div>
         <label for="alta-objectiu" class="block text-sm font-semibold text-muted mb-1">Objectiu</label>
@@ -222,7 +237,9 @@
         <div class="flex justify-between" id="fila-greix"><span class="text-muted">% greix estimat</span><span id="calc-greix-pct" class="font-semibold"></span></div>
         <div class="flex justify-between" id="fila-ffm"><span class="text-muted">Massa magra</span><span id="calc-ffm" class="font-semibold"></span></div>
         <div class="flex justify-between"><span class="text-muted">Metabolisme basal</span><span id="calc-bmr" class="font-semibold"></span></div>
-        <div class="flex justify-between border-t border-line pt-1.5"><span class="text-muted">Manteniment (× activitat)</span><span id="calc-manteniment" class="font-semibold text-txt"></span></div>
+        <div class="flex justify-between"><span class="text-muted">+ Vida diària <span id="calc-neat-nom" class="text-[10px]"></span></span><span id="calc-neat" class="font-semibold"></span></div>
+        <div class="flex justify-between"><span class="text-muted">+ Entrenament <span id="calc-entreno-detall" class="text-[10px]"></span></span><span id="calc-entreno" class="font-semibold"></span></div>
+        <div class="flex justify-between border-t border-line pt-1.5"><span class="text-muted">= Manteniment total</span><span id="calc-manteniment" class="font-semibold text-txt"></span></div>
       </div>
     </div>
 
@@ -255,16 +272,19 @@
           <label for="calc-proteina" class="block text-xs font-semibold text-sky mb-1">Proteïna (g)</label>
           <input autocomplete="off" id="calc-proteina" type="number" oninput="actualitzarDetallMacros()" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-sky">
           <p id="det-proteina" class="text-[10px] text-muted text-center mt-1"></p>
+          <p id="rang-proteina" class="text-[10px] text-center leading-tight"></p>
         </div>
         <div>
           <label for="calc-greix" class="block text-xs font-semibold text-amber mb-1">Greix (g)</label>
           <input autocomplete="off" id="calc-greix" type="number" oninput="actualitzarDetallMacros()" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-amber">
           <p id="det-greix" class="text-[10px] text-muted text-center mt-1"></p>
+          <p id="rang-greix" class="text-[10px] text-center leading-tight"></p>
         </div>
         <div>
           <label for="calc-carbs" class="block text-xs font-semibold text-mint mb-1">Carbs (g)</label>
           <input autocomplete="off" id="calc-carbs" type="number" oninput="actualitzarDetallMacros()" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 text-center font-bold outline-none focus:border-mint">
           <p id="det-carbs" class="text-[10px] text-muted text-center mt-1"></p>
+          <p id="rang-carbs" class="text-[10px] text-center leading-tight"></p>
         </div>
       </div>
       <div class="flex h-2.5 rounded-full overflow-hidden bg-surface2 mb-2">
@@ -422,7 +442,20 @@
         <div><label for="dp-pes" class="block text-xs font-semibold text-muted mb-1">Pes (kg)</label><input autocomplete="off" id="dp-pes" type="number" step="0.1" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 focus:border-pink outline-none"></div>
         <div><label for="dp-pes-obj" class="block text-xs font-semibold text-muted mb-1">Objectiu</label><input autocomplete="off" id="dp-pes-obj" type="number" step="0.1" class="w-full bg-surface2 border border-line rounded-xl px-2 py-2.5 focus:border-pink outline-none"></div>
       </div>
-      <div><label for="dp-activitat" class="block text-sm font-semibold text-muted mb-1">Nivell d'activitat</label><select id="dp-activitat" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"><option>Sedentari</option><option>Lleuger</option><option>Moderat</option><option>Actiu</option><option>Molt actiu</option></select></div>
+      <div>
+        <label for="dp-activitat" class="block text-sm font-semibold text-muted mb-1">Activitat diària <span class="text-pinksoft">(sense el gimnàs)</span></label>
+        <select id="dp-activitat" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none">
+          <option value="Sedentària">Sedentària — oficina, poc moviment</option>
+          <option value="Lleugera">Lleugera — a peu sovint</option>
+          <option value="Activa">Activa — moviment constant</option>
+          <option value="Molt activa">Molt activa — feina física</option>
+        </select>
+        <p class="text-[11px] text-muted mt-1">L'entrenament es compta a part amb els camps de sota.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label for="dp-dies" class="block text-sm font-semibold text-muted mb-1">Dies gimnàs/setmana</label><input autocomplete="off" id="dp-dies" type="number" min="0" max="7" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none text-center"></div>
+        <div><label for="dp-minuts" class="block text-sm font-semibold text-muted mb-1">Minuts per sessió</label><input autocomplete="off" id="dp-minuts" type="number" min="15" max="180" step="5" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none text-center"></div>
+      </div>
       <div><label for="dp-objectiu" class="block text-sm font-semibold text-muted mb-1">Objectiu</label><select id="dp-objectiu" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none"><option>Perdre greix</option><option>Guanyar múscul</option><option>Recomposició</option><option>Manteniment</option></select></div>
       <div><label for="dp-pin" class="block text-sm font-semibold text-muted mb-1">PIN de la Gemma (deixa'l buit per no canviar-lo)</label><input autocomplete="off" id="dp-pin" type="text" inputmode="numeric" maxlength="4" class="w-full bg-surface2 border border-line rounded-xl px-3 py-2.5 focus:border-pink outline-none text-center tracking-widest"></div>
     </div>
@@ -598,7 +631,7 @@
 
   /* ================= ALTA ================= */
   async function enviarAlta() {
-    const camps = ['alta-nom','alta-naixement','alta-sexe','alta-alcada','alta-pes','alta-pes-obj','alta-activitat','alta-objectiu','alta-pin'];
+    const camps = ['alta-nom','alta-naixement','alta-sexe','alta-alcada','alta-pes','alta-pes-obj','alta-activitat','alta-objectiu','alta-pin','alta-dies','alta-minuts'];
     const v = {};
     let buit = false;
     camps.forEach(function (id) { v[id] = document.getElementById(id).value; if (!v[id]) buit = true; });
@@ -611,7 +644,8 @@
     await postData('guardarAlta', {
       nom: v['alta-nom'], dataNaixement: v['alta-naixement'], sexe: v['alta-sexe'],
       alcada: v['alta-alcada'], pesActual: v['alta-pes'], pesObjectiu: v['alta-pes-obj'],
-      factorActivitat: v['alta-activitat'], objectiu: v['alta-objectiu'], pin: v['alta-pin']
+      factorActivitat: v['alta-activitat'], objectiu: v['alta-objectiu'], pin: v['alta-pin'],
+      diesEntrenament: v['alta-dies'], minutsSessio: v['alta-minuts']
     });
     iniciarApp(v['alta-pin']);
   }
@@ -702,7 +736,11 @@
       'Fórmula: ' + m.metodeBMR + (m.dataPes ? ' · pes del ' + m.dataPes : ' · pes de l\'alta');
     document.getElementById('calc-pes-usat').innerText = m.pesUsat + ' kg';
     document.getElementById('calc-bmr').innerText = m.bmr + ' kcal';
-    document.getElementById('calc-manteniment').innerText = m.manteniment + ' kcal (×' + m.factorUsat + ')';
+    document.getElementById('calc-neat-nom').innerText = '(' + m.nomNEAT + ' ×' + m.factorUsat + ')';
+    document.getElementById('calc-neat').innerText = '+' + (m.kcalNEAT - m.bmr) + ' kcal';
+    document.getElementById('calc-entreno-detall').innerText = '(' + m.diesEntrenament + ' dies × ' + m.minutsSessio + ' min)';
+    document.getElementById('calc-entreno').innerText = '+' + m.kcalEntrenament + ' kcal';
+    document.getElementById('calc-manteniment').innerText = m.manteniment + ' kcal';
 
     const teGreix = m.greixPct !== null && m.greixPct !== undefined;
     document.getElementById('fila-greix').classList.toggle('hidden-screen', !teGreix);
@@ -797,6 +835,29 @@
     }).join('');
   }
 
+  /**
+   * Mostra el rang recomanat en grams i marca amb ⚠️ si el valor
+   * actual en surt (per sota o per sobre).
+   */
+  function pintarRang(idElement, valorGrams, rang, base) {
+    const el = document.getElementById(idElement);
+    if (!el || !rang) return;
+    const minG = Math.round(base * rang.min);
+    const maxG = Math.round(base * rang.max);
+    const foraPerSota = valorGrams < minG;
+    const foraPerSobre = valorGrams > maxG;
+
+    if (foraPerSota || foraPerSobre) {
+      el.className = 'text-[10px] text-center leading-tight text-amber font-semibold';
+      el.innerHTML = '⚠️ ' + minG + '–' + maxG + 'g';
+      el.title = foraPerSota ? 'Per sota del rang recomanat' : 'Per sobre del rang recomanat';
+    } else {
+      el.className = 'text-[10px] text-center leading-tight text-mint';
+      el.innerHTML = '✓ ' + minG + '–' + maxG + 'g';
+      el.title = 'Dins del rang recomanat';
+    }
+  }
+
   function actualitzarDetallMacros() {
     const pes = appData.macros.params.pes;
     const p = Number(document.getElementById('calc-proteina').value) || 0;
@@ -804,9 +865,14 @@
     const c = Number(document.getElementById('calc-carbs').value) || 0;
     const total = p * 4 + g * 9 + c * 4;
 
-    document.getElementById('det-proteina').innerText = (Math.round(p / pes * 100) / 100) + ' g/kg';
+    const rangs = appData.macros.params.rangs;
+    document.getElementById('det-proteina').innerText = (Math.round(p / rangs.proteinaBase * 100) / 100) + ' g/kg ' + rangs.proteinaEtiquetaBase;
     document.getElementById('det-greix').innerText = (Math.round(g / pes * 100) / 100) + ' g/kg';
     document.getElementById('det-carbs').innerText = (Math.round(c / pes * 100) / 100) + ' g/kg';
+
+    pintarRang('rang-proteina', p, rangs.proteina, rangs.proteinaBase);
+    pintarRang('rang-greix', g, rangs.greix, pes);
+    pintarRang('rang-carbs', c, rangs.carbs, pes);
 
     document.getElementById('barra-prot').style.width = total ? (p * 4 / total * 100) + '%' : '0%';
     document.getElementById('barra-greix').style.width = total ? (g * 9 / total * 100) + '%' : '0%';
@@ -1729,7 +1795,10 @@
     document.getElementById('dp-alcada').value = dp.alcada || '';
     document.getElementById('dp-pes').value = dp.pesActual || '';
     document.getElementById('dp-pes-obj').value = dp.pesObjectiu || '';
-    document.getElementById('dp-activitat').value = dp.factorActivitat || 'Moderat';
+    const equiv = { 'Sedentari': 'Sedentària', 'Lleuger': 'Lleugera', 'Moderat': 'Lleugera', 'Actiu': 'Activa', 'Molt actiu': 'Molt activa' };
+    document.getElementById('dp-activitat').value = equiv[dp.factorActivitat] || dp.factorActivitat || 'Sedentària';
+    document.getElementById('dp-dies').value = dp.diesEntrenament || 3;
+    document.getElementById('dp-minuts').value = dp.minutsSessio || 60;
     document.getElementById('dp-objectiu').value = dp.objectiu || 'Perdre greix';
     document.getElementById('dp-pin').value = '';
     mostrarPantalla('screen-admin-dades');
@@ -1744,6 +1813,8 @@
       pesActual: document.getElementById('dp-pes').value,
       pesObjectiu: document.getElementById('dp-pes-obj').value,
       factorActivitat: document.getElementById('dp-activitat').value,
+      diesEntrenament: document.getElementById('dp-dies').value,
+      minutsSessio: document.getElementById('dp-minuts').value,
       objectiu: document.getElementById('dp-objectiu').value,
       pin: document.getElementById('dp-pin').value
     });
